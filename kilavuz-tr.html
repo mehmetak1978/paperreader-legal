@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperReader Kullanım Kılavuzu</title>
+<meta name="author" content="PaperReader">
+<meta property="og:site_name" content="PaperReader">
+<meta name="description" content="PaperReader'ı sıfırdan öğrenin: defterler, kaynak ekleme, yapay zeka blokları, kalemle not alma, yer imleri ve daha fazlası — ekran görüntüleriyle adım adım.">
+<style>
+  :root{
+    --paper:#F6F1E7; --paper-elevated:#FBF7EF; --paper-sunken:#EEE7D8;
+    --ink:#2B2620; --ink-2:#6B6155; --ink-3:#9A8F7F; --hairline:#E0D7C5;
+    --pencil:#7C5CC4; --earth:#9A6A3A; --earth-2:#7E5A8C;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:"Helvetica Neue",-apple-system,"Segoe UI",sans-serif;
+    font-size:17px; line-height:1.65; }
+  main{ max-width:760px; margin:0 auto; padding:28px 20px 60px; }
+  h1,h2,h3{ font-family:"Palatino Linotype","Iowan Old Style",Palatino,Georgia,serif;
+    line-height:1.15; color:var(--ink); }
+  h1{ font-size:2.4em; margin:0.4em 0 0.3em; }
+  h2{ font-size:1.7em; margin:2.2em 0 0.5em; padding-top:0.6em; border-top:1px solid var(--hairline); }
+  h3{ font-size:1.25em; margin:1.6em 0 0.4em; }
+  p{ margin:0 0 1em; }
+  .kicker{ font-size:0.8em; letter-spacing:2.4px; font-weight:700; text-transform:uppercase;
+    color:var(--earth); margin:1.5em 0 0; }
+  .lead{ font-size:1.12em; color:var(--ink-2); }
+  b, strong{ color:var(--ink); }
+  .ui{ font-weight:700; }
+  figure{ margin:1.4em 0 1.8em; }
+  figure img{ width:100%; display:block; border-radius:10px;
+    border:1px solid var(--hairline); box-shadow:0 3px 14px rgba(60,50,35,0.10); }
+  figcaption{ margin-top:0.5em; font-size:0.85em; color:var(--ink-3); }
+  .kutu{ background:var(--paper-elevated); border:1px solid var(--hairline);
+    border-left:4px solid var(--earth); border-radius:8px; padding:14px 16px; margin:1.2em 0; }
+  .kutu.mor{ border-left-color:var(--pencil); }
+  .kutu p:last-child{ margin-bottom:0; }
+  .etiket{ display:inline-block; font-size:0.72em; letter-spacing:1.5px; font-weight:700;
+    text-transform:uppercase; color:var(--pencil); border:1px solid var(--pencil);
+    border-radius:20px; padding:1px 10px; margin-bottom:6px; }
+  .etiket.toprak{ color:var(--earth); border-color:var(--earth); }
+  ol,ul{ padding-left:1.3em; margin:0 0 1em; }
+  li{ margin-bottom:0.4em; }
+  nav.icindekiler{ background:var(--paper-elevated); border:1px solid var(--hairline);
+    border-radius:10px; padding:16px 20px; margin:1.5em 0; }
+  nav.icindekiler b{ display:block; margin-bottom:8px; letter-spacing:1px;
+    text-transform:uppercase; font-size:0.8em; color:var(--earth); }
+  nav.icindekiler a{ color:var(--ink); text-decoration:none; display:block;
+    padding:3px 0; font-size:0.95em; }
+  nav.icindekiler a:hover{ color:var(--pencil); }
+  a{ color:var(--pencil); }
+  footer{ margin-top:60px; padding-top:20px; border-top:1px solid var(--hairline);
+    font-size:0.85em; color:var(--ink-3); }
+  .sss dt{ font-weight:700; margin-top:1.1em; }
+  .sss dd{ margin:0.3em 0 0 0; color:var(--ink-2); }
+</style>
+</head>
+<body>
+<main>
+
+<p class="kicker">PAPERREADER</p>
+<h1>Kullanım Kılavuzu</h1>
+<p class="lead">PaperReader, iPad için bir okuma ve çalışma asistanıdır. Bir web sayfasını, PDF'i ya da metni uygulamaya getirirsin; PaperReader onu okunabilir hale getirir, yapay zeka ile özetler, açıklar, çevirir — sen de üzerine kalemle not alırsın. Bu kılavuz, uygulamayı hiç bilmeyen birinin bile rahatça takip edebileceği şekilde, ekran görüntüleriyle adım adım her şeyi anlatır.</p>
+
+<nav class="icindekiler">
+<b>İçindekiler</b>
+<a href="#nedir">1. PaperReader nedir?</a>
+<a href="#kavramlar">2. Üç temel kavram: Defter, Bölüm, Çalışma</a>
+<a href="#kaynak">3. İlk çalışmanı oluştur — kaynak eklemenin 4 yolu</a>
+<a href="#ekran">4. Çalışma ekranını tanı</a>
+<a href="#bloklar">5. Bloklar: yapay zekanın çalıştığı yer</a>
+<a href="#kalem">6. Kalemle not alma, damgalar ve emojiler</a>
+<a href="#yerimi">7. Yer imleri</a>
+<a href="#ceviri">8. Çeviri</a>
+<a href="#arama">9. Arama</a>
+<a href="#pdf">10. PDF olarak kaydetme ve yazdırma</a>
+<a href="#anahtar">11. Yapay zeka ve API anahtarı</a>
+<a href="#esitleme">12. Eşitleme, Rapor ve Çöp Kutusu</a>
+<a href="#sss">13. Sık sorulan sorular</a>
+</nav>
+
+<h2 id="nedir">1. PaperReader nedir?</h2>
+<p>İnternette uzun bir makale buldun, okumak istiyorsun ama dili yabancı, metin uzun, terimler ağır. PaperReader tam bu an için yapıldı. Sayfayı uygulamaya alırsın; sol tarafta orijinal metin durur, sağ tarafta ise senin çalışma alanın vardır: burada tek dokunuşla özet çıkartır, metni kendi dilinde okur, anlamadığın terimlerin açıklamalarını görür, kendine soru-cevap kartları hazırlatır ve metne soru sorarsın.</p>
+<p>En önemlisi: <b>hiçbir şey otomatik toplanmaz.</b> Hangi kaynağın uygulamaya gireceğine her zaman sen karar verirsin. PaperReader arka planda gezinmez, senin adına hiçbir yere giriş yapmaz; o, sen okurken yanında duran bir asistandır.</p>
+<figure>
+  <img src="kilavuz-img/tr-ciftpanel.png" alt="Çift panelli çalışma ekranı: solda kaynak, sağda çalışma alanı">
+  <figcaption>Çalışma ekranı: solda orijinal kaynak, sağda özet/açıklama/kart gibi bloklar — ve hepsinin üzerinde kalemle notların.</figcaption>
+</figure>
+
+<h2 id="kavramlar">2. Üç temel kavram: Defter, Bölüm, Çalışma</h2>
+<p>PaperReader'da her şey üç kademeli bir düzen içinde durur. Bunu bir kağıt defter gibi düşünebilirsin:</p>
+<p><b>Defter</b>, en üstteki kaptır. Bir konuya ya da amaca bir defter açarsın: "Tez Araştırması", "İngilizce Makaleler", "Hobiler" gibi. Defterler ekranın solundaki kenar çubuğunda listelenir.</p>
+<p><b>Bölüm</b>, bir defterin içindeki sayfa sekmesidir. İlgili kaynakları bir arada tutar: "Tez Araştırması" defterinde "Kaynaklar", "Karşıt Görüşler", "Taslaklar" bölümleri olabilir. Bölümler, ekranın üstünde sekmeler halinde görünür.</p>
+<p><b>Çalışma</b>, tek bir kaynağa bağlı okuma ve not alma alanıdır. Her eklediğin kaynak (web sayfası, PDF, metin) bir çalışmaya dönüşür ve bir bölümün içinde yaşar.</p>
+<figure>
+  <img src="kilavuz-img/tr-kutuphane.png" alt="Kütüphane ekranı: solda defterler, üstte bölüm sekmeleri, ortada çalışma kartları">
+  <figcaption>Kütüphane: solda defterler, üstte bölüm sekmeleri, ortada o bölümün çalışmaları.</figcaption>
+</figure>
+<p>Yeni defter açmak için kenar çubuğunun altındaki <span class="ui">"+ Yeni defter"</span> satırına, yeni bölüm için sekmelerin yanındaki <span class="ui">"+"</span> işaretine dokun. Defterleri ve bölümleri sürükleyerek yeniden sıralayabilir, basılı tutup menüden yeniden adlandırabilirsin. Bir çalışmayı başka bölüme taşımak da mümkün — kartını basılı tutup hedef sekmenin üzerine bırakman yeterli.</p>
+
+<h2 id="kaynak">3. İlk çalışmanı oluştur — kaynak eklemenin 4 yolu</h2>
+<p>Bölümdeki <span class="ui">"+ Yeni çalışma"</span> kartına dokununca "Yeni kaynak ekle" penceresi açılır. Üstte çalışmanın hangi defter ve bölüme ekleneceğini görürsün; altında dört kanal vardır:</p>
+<figure>
+  <img src="kilavuz-img/tr-kaynak_ekle.png" alt="Yeni kaynak ekle penceresi: web sayfası, doküman ve kopyala-yapıştır kanalları">
+  <figcaption>"Yeni kaynak ekle": hedef defter/bölüm üstte, kaynak kanalları altta.</figcaption>
+</figure>
+<h3>Web sayfası</h3>
+<p><span class="ui">"Tarayıcıyı aç"</span> dediğinde PaperReader'ın kendi tarayıcısı açılır. Burası bildiğin bir tarayıcı gibidir: adres yazar, arama yapar, sitelere kendi hesabınla giriş yapabilirsin (aboneliklerin çalışır). Sık kullandığın siteleri yıldıza dokunarak <b>favorilere</b> eklersin; favoriler kategorilere ayrılmış bir pano halinde tarayıcının açılış sayfasında durur.</p>
+<figure>
+  <img src="kilavuz-img/tr-favoriler.png" alt="Tarayıcının favoriler panosu">
+  <figcaption>Tarayıcının açılış sayfası: kategorilere ayrılmış favori panosu.</figcaption>
+</figure>
+<p>Okumak istediğin sayfaya gelince <span class="ui">"Çalışma Oluştur"</span> düğmesine dokun. Sayfanın metni ve görselleri alınır, çalışman oluşur ve otomatik olarak açılır. Görseller cihazına indirildiği için sayfa sonradan internetten kaldırılsa bile çalışman eksiksiz kalır.</p>
+<h3>Doküman</h3>
+<p>PDF, Word (docx), RTF, TXT ve Markdown dosyalarını içe aktarır. Dosyayı seçersin, PaperReader başlıkları ve gömülü görselleri koruyarak metni bloklara ayırır, önizlemeyi onaylarsın, çalışman hazırdır.</p>
+<h3>Kopyala-yapıştır</h3>
+<p>Herhangi bir yerden kopyaladığın metni doğrudan yapıştırırsın. Metin, boş satırlara göre paragraf bloklarına ayrılır.</p>
+<h3>Paylaş sayfası</h3>
+<p>Safari'de ya da başka bir uygulamada bir sayfa veya dosya açıkken sistemin <b>Paylaş</b> düğmesine bas ve listeden PaperReader'ı seç. Bağlantı ya da dosya doğrudan PaperReader'a gelir; hedef bölümü onaylarsın, gerisi aynıdır.</p>
+<div class="kutu">
+<p><b>Ücretsiz sürüm hakkında:</b> PaperReader'a ücretsiz olarak 10 kaynak ekleyebilirsin. Daha fazlası için uygulama içinden PaperReader Pro aboneliğine geçilir. Silinen kaynaklar hakkı geri kazandırmaz; bu yüzden ilk kaynaklarını gerçekten çalışmak istediğin içeriklerden seçmeni öneririz.</p>
+</div>
+
+<h2 id="ekran">4. Çalışma ekranını tanı</h2>
+<p>Bir çalışmayı açınca ekran ikiye bölünür.</p>
+<p><b>Sol panel — Kaynak:</b> Eklediğin içeriğin orijinal hali. Metin hiçbir zaman değiştirilmez ve her zaman orijinal dilindedir; en üstte yazar, yayın ve adres bilgilerinden oluşan bir künye durur. Bu panel salt-okunurdur: kaynağın aslına her an dönebilmen için oradadır.</p>
+<figure>
+  <img src="kilavuz-img/tr-kaynak.png" alt="Sol kaynak paneli: künye ve orijinal metin">
+  <figcaption>Sol panel: kaynağın künyesi ve dokunulmamış orijinal metni.</figcaption>
+</figure>
+<p><b>Sağ panel — Çalışma Alanı:</b> Senin sayfan. Buraya <b>bloklar</b> eklersin (bir sonraki bölümde tek tek anlatıyoruz). Her bloğun başlığına dokunarak açıp kapatabilir, başlıktaki büyütme simgesiyle bloğu <b>tam ekrana</b> alabilirsin — okumak ve kalemle not almak için en rahat görünüm budur. İki panel arasındaki çizgiyi sürükleyerek genişlikleri ayarlayabilirsin.</p>
+
+<h2 id="bloklar">5. Bloklar: yapay zekanın çalıştığı yer</h2>
+<p>Sağ paneldeki <span class="ui">"+ Blok ekle"</span> düğmesine dokununca blok türlerini görürsün. Yapay zeka üreten bloklar (Özet, Açıklamalı Metin, Terimler, Kartlar) oluşturulurken önce <b>hangi dilde</b> istediğini sorar — kaynağın orijinal dilini ya da çeviri dillerinden birini seçersin — sonra içerik bir kez üretilir ve bloğa <b>dondurulur</b>: yeni bir sürüm istersen yeni bir blok eklersin.</p>
+<h3>Özet</h3>
+<p>Kaynağın tamamını yapılandırılmış bir özete dönüştürür. En üstte <b>ANA FİKİR</b>, en altta <b>SONUÇ</b> kutusu bulunur; aradaki bölümlerde önemli noktalar, tanımlar ve örnekler renkli kutularla işaretlenir. Özetin uzunluğunu Ayarlar'dan kısadan uzuna seçebilirsin.</p>
+<figure>
+  <img src="kilavuz-img/tr-ozet.png" alt="Özet bloğu: ana fikir ve renkli kutularla yapılandırılmış özet">
+  <figcaption>Özet bloğu: ANA FİKİR çerçevesi ve renkli vurgu kutuları.</figcaption>
+</figure>
+<h3>Açıklamalı Metin</h3>
+<p>Kaynağın metnini <b>kelimesi kelimesine</b> korur ve üzerine bir açıklama katmanı ekler: paragrafların arasına <b>TANIM</b>, <b>TERİM</b>, <b>ÖNEMLİ</b> ve <b>ÖRNEK</b> kutuları yerleşir, anahtar kelimeler fosforlu kalemle çizilmiş gibi vurgulanır. Metnin kendisi asla yeniden yazılmaz — okuduğun her cümle kaynağın kendi cümlesidir. Yabancı dildeki bir kaynağı kendi dilinde, açıklamalarla okumak için en güçlü araç budur.</p>
+<figure>
+  <img src="kilavuz-img/tr-aciklamali.png" alt="Açıklamalı Metin bloğu: metin ve araya yerleşen açıklama kutuları">
+  <figcaption>Açıklamalı Metin: orijinal metin + yapay zekanın TANIM/ÖNEMLİ kutuları ve vurguları.</figcaption>
+</figure>
+<h3>Terimler Sözlüğü</h3>
+<p>Kaynaktaki önemli terimleri ve kısa tanımlarını tek bir listede toplar. Donmuş bir başvurudur; istersen üzerine kalemle kendi notlarını eklersin.</p>
+<figure>
+  <img src="kilavuz-img/tr-terimler.png" alt="Terimler Sözlüğü bloğu">
+  <figcaption>Terimler Sözlüğü: kaynağa özel küçük bir sözlük.</figcaption>
+</figure>
+<h3>Öğrenme Kartları</h3>
+<p>Kaynaktan soru-cevap kartları üretir. Üretilen kartları önce önizler, istemediklerini çıkarır, sonra desteni onaylarsın. Çalışırken karta dokununca çevrilir, kaydırınca sonrakine geçersin; cevabın ardından <b>ne kadar bildiğini</b> yüz ifadeleriyle işaretlersin. Bu notlar, aralıklı tekrar mantığıyla hangi kartın ne zaman tekrar karşına çıkacağını belirler — zorlandıkların sık, bildiklerini seyrek görürsün.</p>
+<figure>
+  <img src="kilavuz-img/tr-kartlar.png" alt="Öğrenme kartları bloğu: çevrilebilir soru-cevap kartı">
+  <figcaption>Öğrenme Kartları: dokun-çevir, kaydır-geç, yüz ifadesiyle notla.</figcaption>
+</figure>
+<h3>Sohbet</h3>
+<p>Kaynağınla konuşursun: "Bu yazar ne savunuyor?", "Üçüncü bölümü basitçe açıkla", "Bu iddianın dayanağı ne?" gibi sorular sorar, cevabın akışını canlı izlersin. İstersen kapsamı genişletirsin: yalnız bu kaynak, bu bölümdeki tüm kaynaklar ya da tüm defter. Bir de <b>Genel</b> mod vardır: kaynağa bağlı kalmadan genel bilgi sorarsın; bu cevaplar karışıklık olmasın diye <b>"Genel bilgi"</b> rozetiyle işaretlenir. Her sohbet bloğu kendi bağımsız konuşmasını tutar — farklı konular için farklı sohbet blokları açabilirsin.</p>
+<figure>
+  <img src="kilavuz-img/tr-sohbet.png" alt="Sohbet bloğu: kaynak hakkında soru-cevap">
+  <figcaption>Sohbet: kaynağa soru sor, cevabı akarken izle.</figcaption>
+</figure>
+<h3>Boş tuval</h3>
+<p>Altında basılı içerik olmayan bomboş bir sayfa. Kendi şemanı çizmek, ders notu tutmak ya da beyin fırtınası yapmak için — yazdıkça aşağı doğru büyür.</p>
+
+<h2 id="kalem">6. Kalemle not alma, damgalar ve emojiler</h2>
+<p>Kalem, PaperReader'ın kalbidir. <b>Her bloğun üzerine</b> — özetin, açıklamalı metnin, sözlüğün üstüne — elle yazabilir, çizebilir, fosforluyla işaretleyebilirsin. Kalem çizer, parmak sayfayı kaydırır; mod değiştirmekle uğraşmazsın. Alttaki araç paletinden kalem türünü, rengini ve silgiyi seçersin. Notların <b>içeriğe hizalıdır</b>: sayfayı kaydırsan, yakınlaştırsan ya da bloğu tam ekrana alsan bile yazdığın her şey yerli yerinde kalır.</p>
+<p>Araç çubuğundaki <span class="ui">"+"</span> düğmesi <b>Yerleştir</b> menüsünü açar. Buradan ekleyebileceklerin:</p>
+<ul>
+<li><b>Metin kutusu:</b> klavyeyle yazılan, istediğin yere taşınabilen serbest not. Yazı tipi, boyut ve renk seçilebilir.</li>
+<li><b>Damgalar:</b> "önemli", "soru", "tekrar bak" gibi mühürler — bir paragrafı işaretlemenin en hızlı yolu.</li>
+<li><b>Tarih damgası:</b> bastığın günün tarihini basar ve dondurur; "bunu ne zaman okudum?" sorusunun cevabı hep orada durur.</li>
+<li><b>Rakamlar (0–9):</b> adımları ya da öncelikleri numaralandırmak için.</li>
+<li><b>Emojiler:</b> ⭐️ 👍 👏 gibi tepki çıkartmaları.</li>
+</ul>
+<p>İnce bir ipucu: tuvale <b>parmağınla basılı tutarsan</b> Yerleştir menüsü açılır ve seçtiğin öğe <b>tam bastığın noktaya</b> yerleşir. Araç çubuğunun en sağındaki <b>ok düğmesi</b> ise seçim modudur: yerleştirdiğin damga ve metin kutularını sonradan seçip taşır, boyutlandırır, döndürür ya da silersin. Her işlem geri alınabilir.</p>
+
+<h2 id="yerimi">7. Yer imleri</h2>
+<p>Uzun bir metinde "buraya geri döneceğim" dediğin yerleri <b>yer imiyle</b> iğnelersin: Yerleştir menüsünden <span class="ui">Yer İmi</span>'ni seç, satırın başına küçük bir iğne oturur. Her yer imine etiket ("önemli", "alıntı", "sınavda çıkar"…) ve kısa bir not ekleyebilirsin.</p>
+<p>Bütün yer imlerin tek listede toplanır: kütüphanenin kenar çubuğundaki <span class="ui">Yer İmleri</span> satırına dokun. Listeyi deftere, etikete ya da arama metnine göre süzebilirsin; bir satıra dokununca ilgili çalışma açılır ve <b>tam işaretlediğin satıra</b> gider.</p>
+
+<h2 id="ceviri">8. Çeviri</h2>
+<p>Ayarlar'da sıralı bir <b>hedef dil listesi</b> tutarsın (Türkçe, İngilizce, Almanca… 30 dil). Yapay zeka bloklarını oluştururken bu dillerden birini seçersin: örneğin İngilizce bir makalenin <b>Açıklamalı Metnini Türkçe</b> istersen, metin çevrilir ve açıklamalar Türkçe gelir. Bir kez çevrilen metin hatırlanır — aynı dile ikinci geçiş beklemeden açılır. Sol paneldeki orijinal her zaman olduğu gibi kalır; çeviri her zaman sağ panelde, senin istediğin blokta yaşar.</p>
+
+<h2 id="arama">9. Arama</h2>
+<p>Kütüphanenin üstündeki arama kutusu iki katmanlı çalışır. Önce <b>birebir eşleşmeleri</b> bulur: aradığın kelime başlıkta ya da metinde geçiyorsa listelenir. Ama asıl güzeli: <b>anlamca ilgili</b> pasajları da bulur — "yapay zeka güvenliği" diye arattığında, bu kelimeler hiç geçmese bile o konuyu anlatan paragraflar "Anlamca ilgili" başlığı altında çıkar. Bir sonuca dokununca çalışma açılır ve tam o pasaja gidip geçici bir vurguyla gösterir. Aramanın kapsamını da seçebilirsin: her yerde, bu defterde, bu bölümde ya da yer imlerinde.</p>
+
+<h2 id="pdf">10. PDF olarak kaydetme ve yazdırma</h2>
+<p>Herhangi bir bloğu — üzerindeki <b>tüm kalem notları, metin kutuları ve damgalarla birlikte</b> — baskı-dostu bir PDF olarak dışa aktarabilirsin: bloğun <span class="ui">•••</span> menüsünden <span class="ui">"PDF olarak kaydet"</span>i seç. Çıkan dosyayı yazdırabilir, paylaşabilir ya da Dosyalar'a kaydedebilirsin. PDF'in başına kaynağın künyesi otomatik eklenir — nereden geldiği hep belli olur.</p>
+
+<h2 id="anahtar">11. Yapay zeka ve API anahtarı</h2>
+<p>PaperReader'ın yapay zeka özellikleri (özet, açıklamalı metin, çeviri, kartlar, sohbet) <b>senin kendi API anahtarınla</b> çalışır. Bu bilinçli bir tasarımdır: aracı yoktur, içeriğin bizim sunucularımızdan geçmez — cihazından doğrudan seçtiğin yapay zeka sağlayıcısına gider ve yalnızca senin onayınla gider.</p>
+<h3>Anahtar nasıl eklenir?</h3>
+<ol>
+<li>Bir yapay zeka sağlayıcısından (Google Gemini, Anthropic, OpenAI veya Groq) kendi API anahtarını al. Anahtar, sağlayıcının kendi sitesinden ücretsiz ya da kullandıkça-öde hesapla alınır.</li>
+<li>PaperReader'da <span class="ui">Ayarlar → AI Sağlayıcı Bağlantıları</span>'na gir, sağlayıcını seç ve anahtarı yapıştır. Uygulama bağlantıyı test eder; yeşil "Bağlı" işaretini görünce hazırsın.</li>
+<li>Anahtarın yalnızca cihazının güvenli deposunda (Keychain) saklanır; bizimle ya da başkasıyla paylaşılmaz.</li>
+</ol>
+<p>İlk yapay zeka işleminden önce uygulama sana hangi sağlayıcıya veri gönderileceğini açıkça söyler ve onayını ister. Harcamanı da uygulama içinden izlersin: Ayarlar'daki kullanım paneli, hangi işlemin yaklaşık kaça mal olduğunu kategori kategori gösterir.</p>
+<figure>
+  <img src="kilavuz-img/tr-gizlilik.png" alt="Gizlilik yaklaşımı: veri doğrudan sağlayıcıya gider">
+  <figcaption>İçeriğin aracıya uğramaz: cihazından doğrudan, yalnız onay verdiğin sağlayıcıya.</figcaption>
+</figure>
+<div class="kutu mor">
+<p><b>Anahtar olmadan ne çalışır?</b> Okuma, kalemle not alma, damgalar, yer imleri, organizasyon, arama ve PDF dışa aktarma anahtarsız da eksiksiz çalışır. Yapay zeka blokları ise anahtar olmadan içerik <b>üretmez</b> — bu durumda uygulama seni nazikçe uyarır ve istersen üzerine not alabileceğin boş bir Açıklamalı Metin bloğu oluşturur.</p>
+</div>
+
+<h2 id="esitleme">12. Eşitleme, Rapor ve Çöp Kutusu</h2>
+<p><b>iCloud eşitleme:</b> Çalışmaların, notların ve kartların iCloud üzerinden cihazların arasında otomatik eşitlenir; uygulamayı silip yeniden kursan bile kütüphanen geri gelir. Açıp kapatman gereken bir ayar yoktur. API anahtarın ise güvenlik gereği eşitlenmez — her cihazda bir kez girilir.</p>
+<p><b>Rapor:</b> Kütüphanenin üst çubuğundaki grafik simgesi, okuma alışkanlıklarını gösteren bir rapor açar: ne kadar kaynak ekledin, ne kadarını bitirdin, kartların ne durumda, yapay zeka harcaman ne kadar — hepsi zaman penceresine göre süzülebilir grafiklerle.</p>
+<p><b>Çöp Kutusu:</b> Sildiğin defter, bölüm, çalışma ve bloklar önce <span class="ui">Ayarlar → Çöp Kutusu</span>'na gider. Oradan tek dokunuşla geri alabilir ya da kalıcı olarak silebilirsin. Yanlışlıkla silmeler geri döndürülebilir.</p>
+
+<h2 id="sss">13. Sık sorulan sorular</h2>
+<dl class="sss">
+<dt>İnternet olmadan çalışır mı?</dt>
+<dd>Eklenmiş çalışmaları okumak, kalemle not almak ve organizasyon tamamen çevrimdışı çalışır (görseller de cihazına indirildiği için). Yeni web kaynağı eklemek ve yapay zeka özellikleri internet ister.</dd>
+<dt>Verilerim nereye gidiyor?</dt>
+<dd>Çalışmaların senin iCloud hesabının özel alanında saklanır; biz göremeyiz. Yapay zeka kullandığında ilgili metin, yalnız senin onayınla, doğrudan seçtiğin sağlayıcıya gider. PaperReader ayrıca hiçbir veri toplamaz.</dd>
+<dt>API anahtarı almak zorunda mıyım?</dt>
+<dd>Hayır. Okuma, not alma ve organizasyon anahtarsız eksiksizdir. Yapay zeka özelliklerini istediğinde bir anahtar eklersin; dilediğin zaman da kaldırabilirsin.</dd>
+<dt>10 ücretsiz kaynak ne demek?</dt>
+<dd>Ücretsiz sürümde toplam 10 kaynak (çalışma) ekleyebilirsin. Sınırsız kaynak için uygulama içinden PaperReader Pro aboneliğine geçilir.</dd>
+<dt>Örnek çalışmaları sildim, geri gelir mi?</dt>
+<dd>Çöp Kutusu'ndan geri alabilirsin; kalıcı sildiysen <span class="ui">Ayarlar → Örnek Çalışma</span> ekranından yeniden yükleyebilirsin.</dd>
+<dt>Tanıtım turunu tekrar izleyebilir miyim?</dt>
+<dd>Evet: <span class="ui">Ayarlar → Görünüm → "Tanıtım turunu başlat"</span>.</dd>
+</dl>
+
+<footer>
+<p>PaperReader: AI Reader — iPad için kaynak-merkezli okuma ve çalışma asistanı.<br>
+Sorular ve geri bildirim için: <a href="https://mehmetak1978.github.io/paperreader-legal/support.html">destek sayfası</a> · <a href="https://mehmetak1978.github.io/paperreader-legal/privacy-PaperReader-tr.html">gizlilik politikası</a></p>
+<p>Bu kılavuzun İngilizcesi: <a href="kilavuz-en.html">PaperReader User Guide (English)</a></p>
+</footer>
+
+</main>
+</body>
+</html>

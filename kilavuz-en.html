@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperReader User Guide</title>
+<meta name="author" content="PaperReader">
+<meta property="og:site_name" content="PaperReader">
+<meta name="description" content="Learn PaperReader from scratch: notebooks, adding sources, AI blocks, pencil notes, bookmarks and more — step by step, with screenshots.">
+<style>
+  :root{
+    --paper:#F6F1E7; --paper-elevated:#FBF7EF; --paper-sunken:#EEE7D8;
+    --ink:#2B2620; --ink-2:#6B6155; --ink-3:#9A8F7F; --hairline:#E0D7C5;
+    --pencil:#7C5CC4; --earth:#9A6A3A; --earth-2:#7E5A8C;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:"Helvetica Neue",-apple-system,"Segoe UI",sans-serif;
+    font-size:17px; line-height:1.65; }
+  main{ max-width:760px; margin:0 auto; padding:28px 20px 60px; }
+  h1,h2,h3{ font-family:"Palatino Linotype","Iowan Old Style",Palatino,Georgia,serif;
+    line-height:1.15; color:var(--ink); }
+  h1{ font-size:2.4em; margin:0.4em 0 0.3em; }
+  h2{ font-size:1.7em; margin:2.2em 0 0.5em; padding-top:0.6em; border-top:1px solid var(--hairline); }
+  h3{ font-size:1.25em; margin:1.6em 0 0.4em; }
+  p{ margin:0 0 1em; }
+  .kicker{ font-size:0.8em; letter-spacing:2.4px; font-weight:700; text-transform:uppercase;
+    color:var(--earth); margin:1.5em 0 0; }
+  .lead{ font-size:1.12em; color:var(--ink-2); }
+  b, strong{ color:var(--ink); }
+  .ui{ font-weight:700; }
+  figure{ margin:1.4em 0 1.8em; }
+  figure img{ width:100%; display:block; border-radius:10px;
+    border:1px solid var(--hairline); box-shadow:0 3px 14px rgba(60,50,35,0.10); }
+  figcaption{ margin-top:0.5em; font-size:0.85em; color:var(--ink-3); }
+  .kutu{ background:var(--paper-elevated); border:1px solid var(--hairline);
+    border-left:4px solid var(--earth); border-radius:8px; padding:14px 16px; margin:1.2em 0; }
+  .kutu.mor{ border-left-color:var(--pencil); }
+  .kutu p:last-child{ margin-bottom:0; }
+  ol,ul{ padding-left:1.3em; margin:0 0 1em; }
+  li{ margin-bottom:0.4em; }
+  nav.icindekiler{ background:var(--paper-elevated); border:1px solid var(--hairline);
+    border-radius:10px; padding:16px 20px; margin:1.5em 0; }
+  nav.icindekiler b{ display:block; margin-bottom:8px; letter-spacing:1px;
+    text-transform:uppercase; font-size:0.8em; color:var(--earth); }
+  nav.icindekiler a{ color:var(--ink); text-decoration:none; display:block;
+    padding:3px 0; font-size:0.95em; }
+  nav.icindekiler a:hover{ color:var(--pencil); }
+  a{ color:var(--pencil); }
+  footer{ margin-top:60px; padding-top:20px; border-top:1px solid var(--hairline);
+    font-size:0.85em; color:var(--ink-3); }
+  .sss dt{ font-weight:700; margin-top:1.1em; }
+  .sss dd{ margin:0.3em 0 0 0; color:var(--ink-2); }
+</style>
+</head>
+<body>
+<main>
+
+<p class="kicker">PAPERREADER</p>
+<h1>User Guide</h1>
+<p class="lead">PaperReader is a reading and study assistant for iPad. You bring a web page, a PDF, or a piece of text into the app; PaperReader makes it readable, summarizes, explains, and translates it with AI — and you take notes on top of everything with the pencil. This guide walks through the whole app step by step, with screenshots, in a way even a first-time user can comfortably follow.</p>
+
+<nav class="icindekiler">
+<b>Contents</b>
+<a href="#nedir">1. What is PaperReader?</a>
+<a href="#kavramlar">2. Three core concepts: Notebook, Section, Work</a>
+<a href="#kaynak">3. Create your first work — 4 ways to add a source</a>
+<a href="#ekran">4. Getting to know the work screen</a>
+<a href="#bloklar">5. Blocks: where the AI does its work</a>
+<a href="#kalem">6. Pencil notes, stamps, and emojis</a>
+<a href="#yerimi">7. Bookmarks</a>
+<a href="#ceviri">8. Translation</a>
+<a href="#arama">9. Search</a>
+<a href="#pdf">10. Saving as PDF and printing</a>
+<a href="#anahtar">11. AI and your API key</a>
+<a href="#esitleme">12. Sync, Report, and Trash</a>
+<a href="#sss">13. Frequently asked questions</a>
+</nav>
+
+<h2 id="nedir">1. What is PaperReader?</h2>
+<p>You've found a long article online. You want to read it, but it's in a foreign language, it's long, and the terminology is heavy. PaperReader was built for exactly this moment. You bring the page into the app; the original text sits on the left, and on the right is your workspace: with a tap you generate a summary, read the text in your own language, see explanations of unfamiliar terms, have flashcards prepared for you, and ask the text questions.</p>
+<p>Most importantly: <b>nothing is collected automatically.</b> You always decide which source enters the app. PaperReader doesn't crawl in the background and never logs in anywhere on your behalf; it's an assistant that sits beside you while you read.</p>
+<figure>
+  <img src="kilavuz-img/en-ciftpanel.png" alt="The two-panel work screen: source on the left, workspace on the right">
+  <figcaption>The work screen: the original source on the left, blocks like summary/annotations/cards on the right — with your pencil notes on top of all of it.</figcaption>
+</figure>
+
+<h2 id="kavramlar">2. Three core concepts: Notebook, Section, Work</h2>
+<p>Everything in PaperReader lives in a three-level structure. Think of it like a paper notebook:</p>
+<p>A <b>Notebook</b> is the top-level container. You open one per topic or purpose: "Thesis Research", "English Articles", "Hobbies". Notebooks are listed in the sidebar on the left.</p>
+<p>A <b>Section</b> is a page tab inside a notebook. It keeps related sources together: a "Thesis Research" notebook might have "Sources", "Counterarguments", and "Drafts" sections. Sections appear as tabs along the top.</p>
+<p>A <b>Work</b> is the reading and note-taking space tied to a single source. Every source you add (web page, PDF, text) becomes a work and lives inside a section.</p>
+<figure>
+  <img src="kilavuz-img/en-kutuphane.png" alt="The library: notebooks on the left, section tabs on top, work cards in the middle">
+  <figcaption>The library: notebooks on the left, section tabs on top, and that section's works in the middle.</figcaption>
+</figure>
+<p>To create a notebook, tap <span class="ui">"+ New notebook"</span> at the bottom of the sidebar; for a new section, tap the <span class="ui">"+"</span> next to the tabs. You can reorder notebooks and sections by dragging, and rename them from their long-press menu. Moving a work to another section is just as easy — press and hold its card and drop it on the target tab.</p>
+
+<h2 id="kaynak">3. Create your first work — 4 ways to add a source</h2>
+<p>Tapping the <span class="ui">"+ New work"</span> card in a section opens the "Add new source" window. At the top you see which notebook and section the work will go into; below are four channels:</p>
+<figure>
+  <img src="kilavuz-img/en-kaynak_ekle.png" alt="Add new source window: web page, document, and copy-paste channels">
+  <figcaption>"Add new source": the target notebook/section on top, the source channels below.</figcaption>
+</figure>
+<h3>Web page</h3>
+<p>Tap <span class="ui">"Open browser"</span> and PaperReader's built-in browser appears. It works like any browser you know: type an address, search, and sign in to sites with your own accounts (your subscriptions work). Save the sites you use often as <b>favorites</b> by tapping the star; favorites live on the browser's start page as a board organized into categories.</p>
+<figure>
+  <img src="kilavuz-img/en-favoriler.png" alt="The browser's favorites board">
+  <figcaption>The browser's start page: your favorites board, organized by category.</figcaption>
+</figure>
+<p>When you reach the page you want to study, tap <span class="ui">"Create Work"</span>. The page's text and images are captured, your work is created and opens automatically. Because images are downloaded to your device, the work stays complete even if the page later disappears from the web.</p>
+<h3>Document</h3>
+<p>Imports PDF, Word (docx), RTF, TXT, and Markdown files. Pick the file, PaperReader splits the text into blocks while preserving headings and embedded images, you confirm the preview, and your work is ready.</p>
+<h3>Copy-paste</h3>
+<p>Paste text you've copied from anywhere. The text is split into paragraph blocks at empty lines.</p>
+<h3>Share sheet</h3>
+<p>With a page or file open in Safari or another app, tap the system <b>Share</b> button and pick PaperReader from the list. The link or file lands directly in PaperReader; you confirm the target section and the rest is the same.</p>
+<div class="kutu">
+<p><b>About the free tier:</b> you can add 10 sources to PaperReader for free. For more, upgrade to the PaperReader Pro subscription inside the app. Deleting sources does not give the allowance back, so we recommend spending your first sources on content you genuinely want to study.</p>
+</div>
+
+<h2 id="ekran">4. Getting to know the work screen</h2>
+<p>Opening a work splits the screen in two.</p>
+<p><b>Left panel — Source:</b> the original form of what you added. The text is never modified and is always in its original language; at the top sits a citation line with the author, publication, and address. This panel is read-only: it's there so you can always return to the source itself.</p>
+<figure>
+  <img src="kilavuz-img/en-kaynak.png" alt="The left source panel: citation line and original text">
+  <figcaption>The left panel: the source's citation line and its untouched original text.</figcaption>
+</figure>
+<p><b>Right panel — Workspace:</b> your page. This is where you add <b>blocks</b> (covered one by one in the next chapter). Tap a block's header to open or close it, and use the maximize icon in the header to take it <b>full screen</b> — the most comfortable view for reading and pencil notes. Drag the divider between the panels to adjust their widths.</p>
+
+<h2 id="bloklar">5. Blocks: where the AI does its work</h2>
+<p>Tap <span class="ui">"+ Add block"</span> in the right panel to see the block types. The AI-generating blocks (Summary, Annotated Text, Glossary, Flashcards) first ask <b>which language</b> you want — the source's original language or one of your translation languages — then the content is generated once and <b>frozen</b> into the block: if you ever want a new version, you add a new block.</p>
+<h3>Summary</h3>
+<p>Turns the whole source into a structured summary. A <b>MAIN IDEA</b> box sits at the top and a <b>CONCLUSION</b> box at the bottom; in between, key points, definitions, and examples are marked with colored callouts. You can set the summary length from short to long in Settings.</p>
+<figure>
+  <img src="kilavuz-img/en-ozet.png" alt="Summary block: main idea and structured summary with colored callouts">
+  <figcaption>The Summary block: MAIN IDEA framing and colored highlight boxes.</figcaption>
+</figure>
+<h3>Annotated Text</h3>
+<p>Keeps the source's text <b>word for word</b> and adds an annotation layer on top: <b>DEFINITION</b>, <b>TERM</b>, <b>IMPORTANT</b>, and <b>EXAMPLE</b> boxes appear between the paragraphs, and key terms are highlighted as if marked with a highlighter. The text itself is never rewritten — every sentence you read is the source's own sentence. This is the most powerful tool for reading a foreign-language source in your own language, with explanations.</p>
+<figure>
+  <img src="kilavuz-img/en-aciklamali.png" alt="Annotated Text block: the text with annotation boxes in between">
+  <figcaption>Annotated Text: the original text + the AI's DEFINITION/IMPORTANT boxes and highlights.</figcaption>
+</figure>
+<h3>Glossary</h3>
+<p>Collects the source's important terms and short definitions in a single list. It's a frozen reference; add your own pencil notes on top if you like.</p>
+<figure>
+  <img src="kilavuz-img/en-terimler.png" alt="Glossary block">
+  <figcaption>The Glossary: a small dictionary specific to your source.</figcaption>
+</figure>
+<h3>Flashcards</h3>
+<p>Generates question-and-answer cards from the source. You preview the cards first, drop the ones you don't want, then confirm your deck. While studying, tap a card to flip it and swipe to move on; after each answer you grade <b>how well you knew it</b> with face icons. Those grades use spaced-repetition logic to decide when each card comes back — the ones you struggle with appear often, the ones you know appear rarely.</p>
+<figure>
+  <img src="kilavuz-img/en-kartlar.png" alt="Flashcards block: a flippable question-and-answer card">
+  <figcaption>Flashcards: tap to flip, swipe to move on, grade with a face.</figcaption>
+</figure>
+<h3>Chat</h3>
+<p>Talk to your source: ask things like "What is this author arguing?", "Explain chapter three simply", or "What is this claim based on?" and watch the answer stream in live. You can widen the scope: just this source, all sources in this section, or the whole notebook. There is also a <b>General</b> mode: you ask for general knowledge without being tied to the source; those answers are marked with a <b>"General knowledge"</b> badge so nothing gets mixed up. Each chat block keeps its own independent conversation — open different chat blocks for different topics.</p>
+<figure>
+  <img src="kilavuz-img/en-sohbet.png" alt="Chat block: questions and answers about the source">
+  <figcaption>Chat: ask the source a question and watch the answer stream in.</figcaption>
+</figure>
+<h3>Blank canvas</h3>
+<p>A completely empty page with no printed content underneath. For sketching your own diagram, keeping lecture notes, or brainstorming — it grows downward as you write.</p>
+
+<h2 id="kalem">6. Pencil notes, stamps, and emojis</h2>
+<p>The pencil is the heart of PaperReader. You can handwrite, draw, and highlight <b>on top of every block</b> — the summary, the annotated text, the glossary. The pencil draws, a finger scrolls; there's no mode to switch. The tool palette at the bottom lets you pick the pen type, color, and eraser. Your notes are <b>aligned to the content</b>: scroll, zoom, or take the block full screen — everything you wrote stays exactly in place.</p>
+<p>The <span class="ui">"+"</span> button in the toolbar opens the <b>Place</b> menu. From here you can add:</p>
+<ul>
+<li><b>Text box:</b> a free-floating note typed with the keyboard, movable anywhere. Font, size, and color are configurable.</li>
+<li><b>Stamps:</b> seals like "important", "question", and "look again" — the fastest way to mark a paragraph.</li>
+<li><b>Date stamp:</b> stamps and freezes the date you placed it; the answer to "when did I read this?" is always right there.</li>
+<li><b>Digits (0–9):</b> for numbering steps or priorities.</li>
+<li><b>Emojis:</b> reaction stickers like ⭐️ 👍 👏.</li>
+</ul>
+<p>A handy tip: <b>press and hold the canvas with a finger</b> and the Place menu opens, dropping your chosen item <b>exactly where you pressed</b>. The <b>arrow button</b> at the far right of the toolbar is selection mode: use it to select placed stamps and text boxes later, then move, resize, rotate, or delete them. Every operation can be undone.</p>
+
+<h2 id="yerimi">7. Bookmarks</h2>
+<p>In a long text, pin the spots you'll come back to with a <b>bookmark</b>: choose <span class="ui">Bookmark</span> from the Place menu and a small pin settles at the start of the line. Each bookmark can carry tags ("important", "quote", "exam material"…) and a short note.</p>
+<p>All your bookmarks gather in a single list: tap the <span class="ui">Bookmarks</span> row in the library sidebar. Filter the list by notebook, tag, or search text; tapping a row opens the work and jumps to <b>the exact line you marked</b>.</p>
+
+<h2 id="ceviri">8. Translation</h2>
+<p>In Settings you keep an ordered list of <b>target languages</b> (Turkish, English, German… 30 languages). When creating AI blocks you pick one of them: ask for the <b>Annotated Text of an English article in Turkish</b>, say, and the text is translated with the annotations arriving in Turkish. Once translated, a text is remembered — the second visit to the same language opens instantly. The original in the left panel always stays as it is; translation always lives in the right panel, in the block you asked for.</p>
+
+<h2 id="arama">9. Search</h2>
+<p>The search box above the library works on two layers. First it finds <b>exact matches</b>: if your word appears in a title or in the text, it's listed. But here's the nice part: it also finds <b>semantically related</b> passages — search for "AI safety" and paragraphs about that topic appear under "Related in meaning" even if those exact words never occur. Tapping a result opens the work and jumps to that very passage, shown with a temporary highlight. You can also choose the scope: everywhere, this notebook, this section, or your bookmarks.</p>
+
+<h2 id="pdf">10. Saving as PDF and printing</h2>
+<p>Any block can be exported as a print-friendly PDF — <b>together with all the pencil notes, text boxes, and stamps on it</b>: choose <span class="ui">"Save as PDF"</span> from the block's <span class="ui">•••</span> menu. Print the file, share it, or save it to Files. The source's citation line is added to the top of the PDF automatically, so its origin is always clear.</p>
+
+<h2 id="anahtar">11. AI and your API key</h2>
+<p>PaperReader's AI features (summary, annotated text, translation, flashcards, chat) run on <b>your own API key</b>. This is a deliberate design: there is no middleman, and your content never passes through our servers — it goes directly from your device to the AI provider you chose, and only with your consent.</p>
+<h3>How do I add a key?</h3>
+<ol>
+<li>Get your own API key from an AI provider (Google Gemini, Anthropic, OpenAI, or Groq). Keys are issued on the provider's own site with a free or pay-as-you-go account.</li>
+<li>In PaperReader, go to <span class="ui">Settings → AI Provider Connections</span>, pick your provider, and paste the key. The app tests the connection; once you see the green "Connected" badge, you're set.</li>
+<li>Your key is stored only in your device's secure storage (Keychain); it is never shared with us or anyone else.</li>
+</ol>
+<p>Before your first AI operation, the app tells you clearly which provider your data will be sent to and asks for your consent. You can also track your spending inside the app: the usage panel in Settings shows roughly what each kind of operation cost, category by category.</p>
+<figure>
+  <img src="kilavuz-img/en-gizlilik.png" alt="Privacy approach: data goes directly to the provider">
+  <figcaption>Your content takes no detours: straight from your device, only to the provider you approved.</figcaption>
+</figure>
+<div class="kutu mor">
+<p><b>What works without a key?</b> Reading, pencil notes, stamps, bookmarks, organization, search, and PDF export all work fully without a key. The AI blocks, however, <b>won't generate</b> content without one — in that case the app gently lets you know and can still create an empty Annotated Text block for you to write notes on.</p>
+</div>
+
+<h2 id="esitleme">12. Sync, Report, and Trash</h2>
+<p><b>iCloud sync:</b> your works, notes, and cards sync automatically between your devices via iCloud; even if you delete and reinstall the app, your library comes back. There's no switch to manage. Your API key, for security, is never synced — you enter it once per device.</p>
+<p><b>Report:</b> the chart icon in the library's top bar opens a report of your reading habits: how many sources you added, how much you finished, how your cards are doing, what your AI spending looks like — all in charts filterable by time window.</p>
+<p><b>Trash:</b> deleted notebooks, sections, works, and blocks first go to <span class="ui">Settings → Trash</span>. From there you can restore them with a tap or delete them permanently. Accidental deletions are recoverable.</p>
+
+<h2 id="sss">13. Frequently asked questions</h2>
+<dl class="sss">
+<dt>Does it work offline?</dt>
+<dd>Reading your existing works, pencil notes, and organization work fully offline (images are downloaded to your device too). Adding new web sources and the AI features need a connection.</dd>
+<dt>Where does my data go?</dt>
+<dd>Your works are stored in your own iCloud account's private space; we cannot see them. When you use AI, the relevant text goes directly to the provider you chose, only with your consent. PaperReader itself collects no data.</dd>
+<dt>Do I have to get an API key?</dt>
+<dd>No. Reading, note-taking, and organization are complete without one. Add a key whenever you want the AI features; you can remove it at any time.</dd>
+<dt>What does "10 free sources" mean?</dt>
+<dd>The free tier lets you add a total of 10 sources (works). For unlimited sources, upgrade to PaperReader Pro inside the app.</dd>
+<dt>I deleted the sample works — can I get them back?</dt>
+<dd>Restore them from the Trash; if you deleted them permanently, reinstall them from <span class="ui">Settings → Sample Work</span>.</dd>
+<dt>Can I see the guided tour again?</dt>
+<dd>Yes: <span class="ui">Settings → Appearance → "Start the guided tour"</span>.</dd>
+</dl>
+
+<footer>
+<p>PaperReader: AI Reader — a source-centered reading and study assistant for iPad.<br>
+Questions and feedback: <a href="https://mehmetak1978.github.io/paperreader-legal/support.html">support page</a> · <a href="https://mehmetak1978.github.io/paperreader-legal/privacy-PaperReader-en.html">privacy policy</a></p>
+<p>Türkçe sürüm: <a href="kilavuz-tr.html">PaperReader Kullanım Kılavuzu (Türkçe)</a></p>
+</footer>
+
+</main>
+</body>
+</html>
