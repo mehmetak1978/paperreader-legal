@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperReader</title>
+<meta name="description" content="PaperReader — iPad için okuma ve çalışma asistanı. Web sayfasını, PDF'i getir; yapay zeka ile özetle, açıkla, çevir; üzerine kalemle not al.">
+<meta property="og:title" content="PaperReader — Oku. Anla. Üzerine yaz.">
+<meta property="og:description" content="iPad için okuma ve çalışma asistanı. Kaynağını sen getirirsin; yapay zeka yanında çalışır; notların kalemle üstüne düşer.">
+<meta property="og:type" content="website">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=Caveat:wght@500;600&display=swap">
+<style>
+/* ——— Mürekkep & Kağıt token'ları (uygulamanın InkPaper renk setiyle birebir) ——— */
+:root{
+  --paper:#FAF7F0; --paper-el:#FFFFFF; --paper-sunk:#F1ECE2; --leaf:#F9F5EE;
+  --ink:#2B2722; --ink-2:#6E665B; --ink-3:#9A9183; --hair:#E3DCCE;
+  --pencil:#7C5CC4; --pencil-soft:#EADFF7; --pencil-ink:#6A4BB5;
+  --earth:#9A6A3A; --teal:#2E7F8C; --teal-soft:#DDEDF0; --marker:#F5E27A;
+  --shadow:0 18px 50px -20px rgba(43,39,34,.28), 0 2px 6px rgba(43,39,34,.06);
+  --serif:"Fraunces","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Instrument Sans","Helvetica Neue",-apple-system,"Segoe UI",sans-serif;
+  --hand:"Caveat","Bradley Hand","Segoe Print",cursive;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1C1A17; --paper-el:#26231F; --paper-sunk:#161412; --leaf:#232019;
+    --ink:#EDE8DF; --ink-2:#A89E90; --ink-3:#766F64; --hair:#34302A;
+    --pencil:#A88BE0; --pencil-soft:#3A3152; --pencil-ink:#B99DEA;
+    --earth:#C9A070; --teal:#7FC1CB; --teal-soft:#1F3236; --marker:#7A6A22;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.7), 0 2px 6px rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1C1A17; --paper-el:#26231F; --paper-sunk:#161412; --leaf:#232019;
+  --ink:#EDE8DF; --ink-2:#A89E90; --ink-3:#766F64; --hair:#34302A;
+  --pencil:#A88BE0; --pencil-soft:#3A3152; --pencil-ink:#B99DEA;
+  --earth:#C9A070; --teal:#7FC1CB; --teal-soft:#1F3236; --marker:#7A6A22;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.7), 0 2px 6px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--pencil)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+:focus-visible{outline:2px solid var(--pencil);outline-offset:3px;border-radius:4px}
+
+/* dil geçişi — TR varsayılan, JS olmadan da çalışır */
+:root:not([data-lang="en"]) .en{display:none !important}
+:root[data-lang="en"] .tr{display:none !important}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.kicker{font-size:.76rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--earth)}
+.lead{font-size:1.2rem;color:var(--ink-2);max-width:34em}
+.hand{font-family:var(--hand);color:var(--pencil-ink);font-weight:600;line-height:1}
+
+/* ——— nav ——— */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-family:var(--serif);font-weight:600;font-size:1.2rem}
+.brand img{width:34px;height:34px;border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.nav-links{display:flex;gap:18px;margin-left:auto;font-size:.93rem}
+.nav-links a{color:var(--ink-2);text-decoration:none}
+.nav-links a:hover{color:var(--ink)}
+.lang{display:flex;border:1px solid var(--hair);border-radius:999px;overflow:hidden;font-size:.8rem;font-weight:600}
+.lang button{border:0;background:transparent;color:var(--ink-3);padding:5px 11px;cursor:pointer;font:inherit}
+.lang button[aria-pressed="true"]{background:var(--pencil);color:#fff}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:.98rem;transition:transform .18s ease, box-shadow .18s ease;border:1px solid transparent}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{box-shadow:0 10px 24px -12px rgba(0,0,0,.5)}
+.btn-ghost{border-color:var(--hair);color:var(--ink);background:var(--paper-el)}
+.btn-sm{padding:8px 14px;font-size:.88rem}
+.btn svg{width:18px;height:18px}
+@media (max-width:980px){.nav-links{display:none}.nav .wrap{gap:12px}}
+
+/* ——— hero ——— */
+.hero{padding:72px 0 40px;position:relative}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:56px;align-items:center}
+.hero h1{font-size:clamp(2.7rem,5.6vw,4.6rem);font-weight:700;font-variation-settings:"opsz" 144;margin:16px 0 22px}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--pencil)}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;align-items:center}
+.hero .fine{margin-top:16px;font-size:.85rem;color:var(--ink-3)}
+.hero-note{position:relative;display:inline-block;margin-top:34px;font-size:1.7rem;transform:rotate(-4deg)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr;gap:40px}.hero{padding-top:44px}}
+
+/* mock — canlı çalışma ekranı */
+.mock-wrap{position:relative}
+.mock{background:var(--paper-el);border:1px solid var(--hair);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;font-size:12.5px;line-height:1.45;aspect-ratio:4/3;display:flex;flex-direction:column;color:var(--ink)}
+.mock-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--hair);font-size:11px;color:var(--ink-3)}
+.mock-bar b{color:var(--ink);font-weight:600}
+.mock-bar .sp{margin-left:auto;display:flex;gap:10px}
+.mock-bar .sp i{width:12px;height:12px;border:1.5px solid var(--ink-3);border-radius:3px;display:inline-block}
+.mock-panels{display:grid;grid-template-columns:1fr 1.15fr;flex:1;min-height:0}
+.mock-src{padding:14px 16px;border-right:1px solid var(--hair);background:var(--paper)}
+.mock-work{padding:14px 16px;background:var(--paper);position:relative}
+.mock-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:10px}
+.mock-cite{font-size:9.5px;color:var(--ink-3);background:var(--paper-sunk);border-radius:6px;padding:4px 8px;margin-bottom:10px}
+.mock-src h4{font-size:15px;font-weight:600;margin-bottom:8px}
+.mock-src p{margin-bottom:8px;color:var(--ink-2);font-size:11.5px}
+.mock-add{border:1px dashed var(--hair);border-radius:8px;text-align:center;padding:5px;color:var(--ink-3);font-size:11px;margin-bottom:10px}
+.mock-block{background:var(--leaf);border:1px solid var(--hair);border-radius:10px;padding:10px 12px 14px;position:relative}
+.mock-bh{display:flex;align-items:center;gap:7px;font-weight:600;font-size:12px;margin-bottom:9px}
+.mock-bh .ai{margin-left:auto;font-size:9px;color:var(--pencil);border:1px solid var(--pencil);border-radius:999px;padding:1px 7px;font-weight:600}
+.mock-callout{background:#F6EEE2;border-left:3px solid var(--earth);border-radius:6px;padding:7px 9px;margin-bottom:9px;font-size:11.5px}
+:root[data-theme="dark"] .mock-callout{background:#2E2820}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mock-callout{background:#2E2820}}
+.mock-callout b{display:inline-block;font-size:9px;letter-spacing:.12em;color:var(--earth);background:var(--paper-el);border-radius:999px;padding:1px 7px;margin-bottom:4px}
+.mock-line{color:var(--ink-2);font-size:11.5px;margin-bottom:6px}
+.mock-line mark{background:var(--marker);color:var(--ink);border-radius:3px;padding:0 2px}
+.mock .ink{position:absolute;overflow:visible;pointer-events:none}
+.mock .ink-under{left:10px;bottom:-4px;width:58%;height:14px}
+.mock-callout{position:relative}
+.mock-line mark{position:relative}
+.mock .ink-circle{left:-7px;top:-7px;width:calc(100% + 14px);height:calc(100% + 14px)}
+.mock .ink-note{right:-4px;bottom:-10px;width:130px;height:80px}
+.mock .ink path{fill:none;stroke:var(--pencil);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1000;stroke-dashoffset:1000}
+.mock .ink text{font-family:var(--hand);fill:var(--pencil-ink);font-size:17px;font-weight:600;opacity:0}
+.mock .ink .sticker{opacity:0;font-size:22px}
+.replay{position:absolute;right:14px;bottom:-40px;font-size:.82rem;color:var(--ink-3);background:none;border:0;cursor:pointer;font:inherit;display:inline-flex;gap:6px;align-items:center}
+.replay:hover{color:var(--pencil)}
+.replay svg{width:14px;height:14px}
+
+/* zaman çizelgesi — .play sınıfı eklenince başlar */
+.mock .a{opacity:0}
+.mock.play .a{animation:up .55s cubic-bezier(.2,.7,.2,1) both}
+.mock.play .a1{animation-delay:.2s}.mock.play .a2{animation-delay:.5s}.mock.play .a3{animation-delay:.8s}
+.mock.play .a4{animation-delay:1.5s}.mock.play .a5{animation-delay:2.1s}.mock.play .a6{animation-delay:2.7s}.mock.play .a7{animation-delay:3.1s}
+.mock.play .ink .p1{animation:draw 1.1s ease-out 3.9s both}
+.mock.play .ink .p2{animation:draw 1.2s ease-in-out 5s both}
+.mock.play .ink .p3{animation:draw .6s ease-out 6.2s both}
+.mock.play .ink .t1{animation:fade .5s ease 6.6s both}
+.mock.play .ink .sticker{animation:pop .5s cubic-bezier(.3,1.6,.5,1) 7.3s both}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fade{to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.4) rotate(-20deg)}to{opacity:1;transform:none}}
+.mock.done .a,.mock.done .ink text,.mock.done .ink .sticker{opacity:1}
+.mock.done .ink path{stroke-dashoffset:0}
+
+/* ——— bölümler ——— */
+section{padding:96px 0}
+.band{background:var(--paper-sunk)}
+.sec-head{max-width:40em;margin-bottom:48px}
+.sec-head h2{font-size:clamp(2rem,3.6vw,2.9rem);margin:12px 0 16px;font-variation-settings:"opsz" 96}
+.sec-head p{color:var(--ink-2);font-size:1.1rem}
+
+/* adımlar (gerçek sıra: getir → çalış → yaz) */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:s}
+.step{background:var(--paper-el);border:1px solid var(--hair);border-radius:14px;padding:26px 26px 28px;position:relative}
+.step::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:2.6rem;font-weight:500;color:var(--pencil);line-height:1;display:block;margin-bottom:14px;font-variation-settings:"opsz" 144}
+.step h3{font-size:1.35rem;margin-bottom:8px}
+.step p{color:var(--ink-2);font-size:.98rem}
+@media (max-width:820px){.steps{grid-template-columns:1fr}}
+
+/* blok kartları — uygulamadaki "yaprak" yüzeyi */
+.blocks{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.blk{background:var(--leaf);border:1px solid var(--hair);border-radius:12px;padding:20px 20px 22px;display:flex;flex-direction:column;gap:10px;transition:transform .25s ease, box-shadow .25s ease}
+.blk:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.blk-h{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;font-size:1.2rem}
+.blk-h svg{width:22px;height:22px;stroke:var(--ink-2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.blk p{color:var(--ink-2);font-size:.95rem}
+.blk .tag{margin-top:auto;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.blk .tag.ai{color:var(--pencil)}
+@media (max-width:900px){.blocks{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.blocks{grid-template-columns:1fr}}
+
+/* ekran görüntüsü galerisi */
+.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:56px}
+.shot{position:relative}
+.shot img{border-radius:12px;border:1px solid var(--hair);box-shadow:var(--shadow);background:var(--paper-el)}
+.shot figcaption{margin-top:10px;font-size:.88rem;color:var(--ink-3)}
+.shot figcaption b{color:var(--ink);font-weight:600}
+@media (max-width:700px){.shots{grid-template-columns:1fr}}
+
+/* kalem bölümü */
+.pen .pen-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;align-items:center}
+.pen h2{font-size:clamp(2rem,3.6vw,2.9rem);margin:12px 0 18px;font-variation-settings:"opsz" 96}
+.pen ul{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:14px}
+.pen li{padding-left:28px;position:relative;color:var(--ink-2)}
+.pen li b{color:var(--ink);font-weight:600}
+.pen li::before{content:"";position:absolute;left:0;top:.55em;width:14px;height:3px;background:var(--pencil);border-radius:2px;transform:rotate(-20deg)}
+.pen-shot{position:relative}
+.pen-shot img{border-radius:14px;border:1px solid var(--hair);box-shadow:var(--shadow)}
+.pen-shot .hand{position:absolute;right:-8px;top:-30px;font-size:1.9rem;transform:rotate(6deg)}
+.pen-shot .hand svg{position:absolute;right:100%;top:18px;width:90px;height:50px;overflow:visible;margin-right:4px}
+@media (max-width:900px){.pen .pen-grid{grid-template-columns:1fr}}
+
+/* kaynaklar */
+.sources{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.src{border-top:2px solid var(--ink);padding-top:16px}
+.src h3{font-size:1.15rem;margin-bottom:6px}
+.src p{color:var(--ink-2);font-size:.93rem}
+.src small{display:block;margin-top:8px;color:var(--ink-3);font-size:.8rem;letter-spacing:.04em}
+@media (max-width:820px){.sources{grid-template-columns:1fr 1fr}}
+.langs{margin-top:54px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.langs span{border:1px solid var(--hair);background:var(--paper-el);border-radius:999px;padding:4px 12px;font-size:.85rem;color:var(--ink-2)}
+.langs .more{border-style:dashed;color:var(--ink-3)}
+
+/* ilkeler */
+.principles .princ-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:56px;align-items:start}
+.quote{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);font-weight:500;line-height:1.25;font-variation-settings:"opsz" 72}
+.quote em{font-style:italic;color:var(--pencil)}
+.plist{display:grid;gap:22px}
+.pitem{display:grid;grid-template-columns:44px 1fr;gap:16px}
+.pitem svg{width:40px;height:40px;stroke:var(--teal);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;background:var(--teal-soft);border-radius:12px;padding:8px}
+.pitem h3{font-size:1.15rem;margin-bottom:4px}
+.pitem p{color:var(--ink-2);font-size:.95rem}
+@media (max-width:900px){.principles .princ-grid{grid-template-columns:1fr}}
+
+/* fiyat */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:820px}
+.plan{background:var(--paper-el);border:1px solid var(--hair);border-radius:16px;padding:30px 30px 32px;position:relative}
+.plan.pro{border-color:var(--pencil);box-shadow:0 0 0 4px var(--pencil-soft)}
+.plan h3{font-size:1.5rem;margin-bottom:4px}
+.plan .price{font-family:var(--serif);font-size:2.4rem;font-weight:600;margin:14px 0 4px;font-variation-settings:"opsz" 144}
+.plan .sub{color:var(--ink-3);font-size:.9rem;margin-bottom:18px}
+.plan ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;color:var(--ink-2);font-size:.95rem}
+.plan li::before{content:"—";color:var(--pencil);margin-right:8px}
+.plan .hand{position:absolute;right:22px;top:-22px;font-size:1.6rem;transform:rotate(-5deg)}
+@media (max-width:700px){.plans{grid-template-columns:1fr}}
+
+/* kapanış */
+.final{text-align:left;padding:110px 0 90px}
+.final h2{font-size:clamp(2.4rem,5vw,4rem);font-weight:700;font-variation-settings:"opsz" 144;margin-bottom:18px}
+.final .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+footer{border-top:1px solid var(--hair);padding:34px 0 50px;font-size:.88rem;color:var(--ink-3)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+footer a{color:var(--ink-2);text-decoration:none}
+footer a:hover{color:var(--pencil)}
+footer .copy{margin-left:auto}
+
+
+/* ——— düzen: defter → bölüm → çalışma ——— */
+.hier{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:center}
+.lib{background:var(--paper-el);border:1px solid var(--hair);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:150px 1fr;font-size:12px;aspect-ratio:16/10;position:relative}
+.lib-side{background:var(--paper);border-right:1px solid var(--hair);padding:14px 10px}
+.lib-side .mock-label{margin-bottom:8px}
+.lib-nb{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:7px;color:var(--ink);opacity:0;transform:translateX(-10px);transition:opacity .5s ease,transform .5s ease}
+.lib-nb i{width:8px;height:8px;border-radius:50%;background:var(--earth);flex:none}
+.lib-nb.on{background:var(--pencil-soft);color:var(--pencil);font-weight:600}
+.lib-nb.on i{background:var(--pencil)}
+.lib-main{padding:14px 16px}
+.lib-tabs{display:flex;gap:16px;border-bottom:1px solid var(--hair);padding-bottom:6px;margin-bottom:12px}
+.lib-tab{color:var(--ink-3);opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease}
+.lib-tab.on{color:var(--pencil);font-weight:600;position:relative}
+.lib-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:2px;background:var(--pencil)}
+.lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lib-w{border:1px solid var(--hair);border-radius:9px;padding:10px;background:var(--paper-el);opacity:0;transform:scale(.92);transition:opacity .45s ease,transform .45s cubic-bezier(.2,.8,.3,1.2)}
+.lib-w .t{font-family:var(--serif);font-weight:600;font-size:12.5px;line-height:1.25;margin:6px 0 8px}
+.lib-w .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--hair);border-radius:4px;padding:0 4px;display:inline-block}
+.lib-w .m{font-size:10px;color:var(--ink-3);display:flex;justify-content:space-between}
+.lib-w .m b{color:var(--pencil);font-weight:600}
+.lib-w.add{border-style:dashed;display:grid;place-items:center;color:var(--ink-3);min-height:74px}
+.in .lib-nb{opacity:1;transform:none}
+.in .lib-nb:nth-child(2){transition-delay:.1s}.in .lib-nb:nth-child(3){transition-delay:.2s}.in .lib-nb:nth-child(4){transition-delay:.3s}
+.in .lib-tab{opacity:1;transform:none}
+.in .lib-tab:nth-child(1){transition-delay:.45s}.in .lib-tab:nth-child(2){transition-delay:.55s}.in .lib-tab:nth-child(3){transition-delay:.65s}
+.in .lib-w{opacity:1;transform:none}
+.in .lib-w:nth-child(1){transition-delay:.85s}.in .lib-w:nth-child(2){transition-delay:.95s}.in .lib-w:nth-child(3){transition-delay:1.05s}.in .lib-w:nth-child(4){transition-delay:1.15s}
+.lib .tagl{position:absolute;font-family:var(--hand);color:var(--pencil-ink);font-size:1.25rem;font-weight:600;opacity:0;transition:opacity .5s ease}
+.in .lib .tagl{opacity:1}
+.lib .tagl.t1{left:14px;bottom:10px;transition-delay:.5s}
+.lib .tagl.t2{right:16px;top:30px;transition-delay:.9s}
+.lib .tagl.t3{right:14px;bottom:10px;transition-delay:1.4s}
+.hlist{display:grid;gap:18px;margin-top:26px}
+.hitem{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.hitem .n{font-family:var(--serif);font-size:1.6rem;font-weight:500;color:var(--pencil);line-height:1;font-variation-settings:"opsz" 144;min-width:1.2em}
+.hitem h3{font-size:1.15rem;margin-bottom:3px}
+.hitem p{color:var(--ink-2);font-size:.95rem}
+@media (max-width:900px){.hier{grid-template-columns:1fr}.lib{aspect-ratio:auto}}
+@media (max-width:560px){.lib{grid-template-columns:1fr}.lib-side{display:none}.lib .tagl.t1{display:none}}
+
+/* ——— öğrenme: etkileşimli kart ——— */
+.learn .learn-grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:56px;align-items:center}
+.learn h2{font-size:clamp(2rem,3.6vw,2.9rem);margin:12px 0 18px;font-variation-settings:"opsz" 96}
+.flash-wrap{perspective:1400px;position:relative}
+.flash{position:relative;width:100%;aspect-ratio:16/10;cursor:pointer;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,.8,.3,1)}
+.flash.flipped{transform:rotateY(180deg)}
+.flash .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--paper-el);border:1px solid var(--hair);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;font-family:var(--serif);font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.3}
+.flash .back{transform:rotateY(180deg);font-family:var(--sans);font-size:1.02rem;color:var(--ink-2);line-height:1.55;justify-content:space-between;padding-top:40px}
+.flash .back b{color:var(--ink)}
+.flash .hint{position:absolute;bottom:14px;left:0;right:0;font-family:var(--sans);font-size:.78rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+.flash .num{position:absolute;top:14px;left:18px;font-family:var(--sans);font-size:.78rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.faces{display:flex;gap:14px}
+.faces button{border:1px solid var(--hair);background:var(--paper);border-radius:999px;padding:7px 16px;font:inherit;font-size:.9rem;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:transform .15s ease,border-color .15s ease}
+.faces button:hover{transform:translateY(-2px);border-color:var(--pencil)}
+.faces button span.e{font-size:1.25rem}
+.flash-note{position:absolute;right:-6px;top:-30px;font-size:1.6rem;transform:rotate(5deg)}
+.deck-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.deck-dots i{width:7px;height:7px;border-radius:50%;background:var(--hair)}
+.deck-dots i.on{background:var(--pencil)}
+.learn .shot{margin-top:36px}
+@media (max-width:900px){.learn .learn-grid{grid-template-columns:1fr}}
+
+/* ——— yerleştir / damga maketi ——— */
+.place{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:48px;align-items:center;margin-top:72px;padding-top:56px;border-top:1px solid var(--hair)}
+.pm{background:var(--paper-el);border:1px solid var(--hair);border-radius:14px;box-shadow:var(--shadow);padding:22px 26px;position:relative;overflow:hidden;font-size:13px;line-height:1.55;aspect-ratio:16/10;color:var(--ink-2)}
+.pm h5{font-family:var(--serif);font-size:18px;color:var(--ink);margin:0 0 8px;font-weight:600}
+.pm p{margin:0 0 8px}
+.pm .finger{position:absolute;left:58%;top:52%;width:22px;height:22px;border-radius:50%;background:var(--pencil);opacity:0;transform:translate(-50%,-50%) scale(.3)}
+.pm .ring{position:absolute;left:58%;top:52%;width:22px;height:22px;border-radius:50%;border:2px solid var(--pencil);opacity:0;transform:translate(-50%,-50%)}
+.pm .grid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);width:86%;background:var(--paper-el);border:1px solid var(--hair);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;opacity:0;display:grid;gap:8px}
+.pm .grid .gl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.pm .grid .row{display:flex;gap:8px;flex-wrap:wrap}
+.pm .chip{border:1px solid var(--hair);border-radius:8px;padding:3px 8px;font-size:10.5px;color:var(--ink);background:var(--paper);display:inline-flex;align-items:center;gap:5px}
+.pm .chip.st{font-weight:700;letter-spacing:.05em;font-size:9px;border-width:2px;border-radius:6px}
+.pm .chip.red{color:#B8412F;border-color:#B8412F}.pm .chip.green{color:#2E8B57;border-color:#2E8B57}.pm .chip.amber{color:#C8912A;border-color:#C8912A}.pm .chip.gray{color:#8A8A8A;border-color:#8A8A8A}.pm .chip.blue-t{color:#3E6FA8;border-color:#3E6FA8;font-weight:600}.pm .chip.num{color:#3E6FA8;font-weight:700;font-size:14px;padding:2px 9px;border:0;background:transparent}.pm .chip.blue{color:#3E6FA8;border-color:#3E6FA8}.pm .chip.teal{color:var(--teal);border-color:var(--teal)}
+.pm .chip.em{font-size:16px;padding:2px 7px;border:0;background:transparent}
+.pm .chip.sel{box-shadow:0 0 0 3px var(--pencil-soft);border-color:var(--pencil)}
+.pm .stamp{position:absolute;left:58%;top:52%;transform:translate(-50%,-50%) rotate(-8deg) scale(0);color:#3E6FA8;border:2.5px solid #3E6FA8;border-radius:7px;padding:4px 10px;font-weight:800;letter-spacing:.08em;font-size:13px;background:rgba(255,255,255,.35);opacity:.85;display:flex;align-items:center;gap:6px}
+.pm .stamp b{font-size:20px;line-height:1}
+@keyframes pmFinger{0%,8%{opacity:0;transform:translate(-50%,-50%) scale(.3)}12%,20%{opacity:.9;transform:translate(-50%,-50%) scale(1)}24%,100%{opacity:0;transform:translate(-50%,-50%) scale(.3)}}
+@keyframes pmRing{0%,12%{opacity:0;transform:translate(-50%,-50%) scale(1)}14%{opacity:.8}24%,100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}}
+@keyframes pmGrid{0%,22%{opacity:0;transform:translate(-50%,-50%) scale(.9)}28%,52%{opacity:1;transform:translate(-50%,-50%) scale(1)}58%,100%{opacity:0;transform:translate(-50%,-50%) scale(.96)}}
+@keyframes pmSel{0%,40%{box-shadow:none}46%,100%{box-shadow:0 0 0 3px var(--pencil-soft);border-color:var(--pencil)}}
+@keyframes pmStamp{0%,56%{transform:translate(-50%,-50%) rotate(-8deg) scale(0)}64%{transform:translate(-50%,-50%) rotate(-8deg) scale(1.15)}68%,90%{transform:translate(-50%,-50%) rotate(-8deg) scale(1)}100%{transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
+.pm.in .finger{animation:pmFinger 9s ease-in-out infinite}
+.pm.in .ring{animation:pmRing 9s ease-out infinite}
+.pm.in .grid{animation:pmGrid 9s ease infinite}
+.pm.in .chip.pick{animation:pmSel 9s ease infinite}
+.pm.in .stamp{animation:pmStamp 9s cubic-bezier(.3,1.5,.5,1) infinite}
+@media (max-width:900px){.place{grid-template-columns:1fr}}
+
+/* ——— yer imleri ——— */
+.bm{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:center}
+.bm-mock{display:grid;grid-template-columns:1fr 1.05fr;gap:14px}
+.bm-blk{background:var(--paper-el);border:1px solid var(--hair);border-radius:12px;box-shadow:var(--shadow);padding:18px 18px 18px 30px;position:relative;font-size:12px;line-height:1.55;color:var(--ink-2)}
+.bm-blk h5{font-family:var(--serif);font-size:15px;color:var(--ink);margin:0 0 6px}
+.bm-blk p{margin:0 0 7px}
+.bm-blk .pin{position:absolute;left:8px;top:74px;width:16px;height:16px;opacity:0;transform:translateY(-26px)}
+.in .bm-blk .pin{animation:pinDrop .6s cubic-bezier(.3,1.4,.5,1) .5s both}
+.bm-blk .pinring{position:absolute;left:16px;top:82px;width:6px;height:6px;border-radius:50%;border:2px solid var(--pencil);opacity:0;transform:translate(-50%,-50%)}
+.in .bm-blk .pinring{animation:pmRing 1.4s ease-out .3s both}
+@keyframes pinDrop{from{opacity:0;transform:translateY(-26px)}to{opacity:1;transform:none}}
+.bm-list{background:var(--paper-el);border:1px solid var(--hair);border-radius:12px;box-shadow:var(--shadow);padding:14px;font-size:11.5px}
+.bm-list .flt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.bm-list .flt span{border:1px solid var(--hair);border-radius:999px;padding:2px 9px;color:var(--ink-2);background:var(--paper)}
+.bm-list .flt span.on{background:var(--pencil);color:#fff;border-color:var(--pencil)}
+.bm-row{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:8px 6px;border-top:1px solid var(--hair);opacity:0;transform:translateX(12px);transition:opacity .5s ease,transform .5s ease}
+.in .bm-row{opacity:1;transform:none}
+.in .bm-row:nth-child(2){transition-delay:.9s}.in .bm-row:nth-child(3){transition-delay:1.05s}.in .bm-row:nth-child(4){transition-delay:1.2s}.in .bm-row:nth-child(5){transition-delay:1.35s}
+.bm-row i{width:8px;height:8px;border-radius:50%;background:var(--earth);margin-top:5px}
+.bm-row.hi{background:var(--pencil-soft);border-radius:8px}
+.bm-row .path{color:var(--ink-3)}
+.bm-row .path b{color:var(--ink);font-weight:600}
+.bm-row .note{color:var(--ink);margin:2px 0}
+.bm-row .tags span{display:inline-block;font-size:10px;color:var(--pencil);background:var(--paper);border:1px solid var(--pencil-soft);border-radius:999px;padding:0 7px;margin-right:4px}
+@media (max-width:900px){.bm{grid-template-columns:1fr}}
+@media (max-width:560px){.bm-mock{grid-template-columns:1fr}}
+
+/* ——— rapor ——— */
+.rep{background:var(--paper-el);border:1px solid var(--hair);border-radius:16px;box-shadow:var(--shadow);padding:22px 24px;display:grid;gap:18px;font-size:12px}
+.rep-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rep-top .ttl{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);margin-right:auto}
+.rep-top span{border:1px solid var(--hair);border-radius:999px;padding:3px 10px;color:var(--ink-2)}
+.rep-top span.on{background:var(--pencil);color:#fff;border-color:var(--pencil)}
+.rep-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.rep-stat{background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:10px 12px}
+.rep-stat b{display:block;font-family:var(--serif);font-size:24px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.rep-stat span{color:var(--ink-3);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.rep-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+.rep-card{background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:12px 14px}
+.rep-card h6{margin:0 0 8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--earth);font-weight:600;display:flex;justify-content:space-between}
+.rep-card h6 em{font-style:normal;color:var(--ink-3);letter-spacing:0;text-transform:none;font-weight:400}
+.rep svg{width:100%;display:block;overflow:visible}
+.rep .line{fill:none;stroke:var(--pencil);stroke-width:2;stroke-dasharray:600;stroke-dashoffset:600}
+.rep .area{fill:var(--pencil);opacity:0}
+.rep.in .line{animation:draw 1.6s ease-out .3s both}
+.rep.in .area{animation:fade .8s ease 1.4s both;opacity:0}
+@keyframes fadeTo{to{opacity:.12}}
+.rep.in .area{animation:fadeTo .8s ease 1.4s both}
+.rep .gridl{stroke:var(--hair);stroke-width:1}
+.rep .heat{display:grid;grid-template-columns:repeat(26,1fr);gap:3px}
+.rep .heat i{aspect-ratio:1;border-radius:2px;background:var(--teal);opacity:0;transform:scale(.4)}
+.rep.in .heat i{animation:cell .4s ease both}
+@keyframes cell{to{transform:none}}
+.rep .bars{display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:6px}
+.rep .bar{flex:1;display:flex;flex-direction:column-reverse;gap:2px}
+.rep .bar i{display:block;border-radius:2px;transform:scaleY(0);transform-origin:bottom;transition:transform .6s cubic-bezier(.2,.8,.3,1)}
+.rep .bar i.c1{background:#9A6A3A}.rep .bar i.c2{background:#2E7F8C}.rep .bar i.c3{background:#7E5A8C}.rep .bar i.c4{background:#B8A46A}
+.rep.in .bar i{transform:none}
+.rep.in .bar:nth-child(1) i{transition-delay:.3s}.rep.in .bar:nth-child(2) i{transition-delay:.4s}.rep.in .bar:nth-child(3) i{transition-delay:.5s}.rep.in .bar:nth-child(4) i{transition-delay:.6s}.rep.in .bar:nth-child(5) i{transition-delay:.7s}.rep.in .bar:nth-child(6) i{transition-delay:.8s}
+.rep .leg{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;color:var(--ink-3);font-size:10px}
+.rep .leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.rep-note{font-size:10.5px;color:var(--ink-3)}
+@media (max-width:820px){.rep-stats{grid-template-columns:repeat(3,1fr)}.rep-grid{grid-template-columns:1fr}}
+
+.shots.three{grid-template-columns:repeat(3,1fr)}
+.shots.one{grid-template-columns:minmax(0,860px);justify-content:center}
+@media (max-width:820px){.shots.three{grid-template-columns:1fr}}
+
+/* kaydırma ile belirme */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .mock .a,.mock .ink text,.mock .ink .sticker{opacity:1 !important;animation:none !important}
+  .mock .ink path{stroke-dashoffset:0 !important;animation:none !important}
+  .btn,.blk{transition:none}
+  .lib-nb,.lib-tab,.lib-w,.lib .tagl,.bm-row{opacity:1 !important;transform:none !important;transition:none !important}
+  .pm .grid,.pm .stamp{animation:none !important}.pm .stamp{transform:translate(-50%,-50%) rotate(-8deg) scale(1) !important}.pm .grid,.pm .finger,.pm .ring{display:none}
+  .bm-blk .pin{opacity:1 !important;transform:none !important;animation:none !important}
+  .rep .line{stroke-dashoffset:0 !important;animation:none !important}.rep .area{opacity:.12 !important;animation:none !important}.rep .heat i{animation:none !important;transform:none !important}.rep .bar i{transition:none !important}
+  .flash{transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/icon.png" alt="" width="34" height="34">PaperReader</a>
+    <div class="nav-links">
+      <a href="#bloklar"><span class="tr">Bloklar</span><span class="en">Blocks</span></a>
+      <a href="#ogrenme"><span class="tr">Öğrenme</span><span class="en">Learning</span></a>
+      <a href="#kalem"><span class="tr">Kalem</span><span class="en">Pencil</span></a>
+      <a href="#kaynaklar"><span class="tr">Kaynaklar</span><span class="en">Sources</span></a>
+      <a href="#rapor"><span class="tr">Rapor</span><span class="en">Report</span></a>
+      <a href="#ilkeler"><span class="tr">İlkeler</span><span class="en">Principles</span></a>
+      <a href="#fiyat"><span class="tr">Fiyat</span><span class="en">Pricing</span></a>
+      <a class="guide-link" href="https://mehmetak1978.github.io/paperreader-legal/kilavuz-tr.html"><span class="tr">Kılavuz</span><span class="en">Guide</span></a>
+    </div>
+    <div class="lang" role="group" aria-label="Dil / Language">
+      <button type="button" data-set-lang="tr" aria-pressed="true">TR</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="btn btn-primary btn-sm store-link" href="#"><span class="tr">App Store</span><span class="en">App Store</span></a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <p class="kicker"><span class="tr">iPad için okuma &amp; çalışma asistanı</span><span class="en">A reading &amp; study assistant for iPad</span></p>
+      <h1>
+        <span class="tr">Oku. Anla.<br><em>Üzerine yaz.</em></span>
+        <span class="en">Read. Understand.<br><em>Write on it.</em></span>
+      </h1>
+      <p class="lead">
+        <span class="tr">Bir web sayfasını ya da PDF'i getir. Sol tarafta orijinal metin durur; sağ tarafta yapay zeka özetler, açıklar, çevirir — sen de hepsinin üstüne Apple Pencil ile not alırsın.</span>
+        <span class="en">Bring a web page or a PDF. The original stays on the left; on the right, AI summarizes, explains and translates — and you write over all of it with Apple Pencil.</span>
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary store-link" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          <span class="tr">App Store'dan indir</span><span class="en">Download on the App Store</span>
+        </a>
+        <a class="btn btn-ghost guide-link" href="https://mehmetak1978.github.io/paperreader-legal/kilavuz-tr.html"><span class="tr">Kullanım kılavuzu</span><span class="en">User guide</span></a>
+      </div>
+      <p class="fine">
+        <span class="tr">iPadOS 26+ · İlk 10 kaynak ücretsiz · Kendi API anahtarınla çalışır</span>
+        <span class="en">iPadOS 26+ · First 10 sources free · Works with your own API key</span>
+      </p>
+      <div class="hero-note hand">
+        <span class="tr">kalemle, tam buraya →</span><span class="en">with the pencil, right here →</span>
+      </div>
+    </div>
+
+    <div class="mock-wrap">
+      <div class="mock" id="mock" aria-label="PaperReader çalışma ekranı canlandırması">
+        <div class="mock-bar">
+          <span class="tr">Tez Araştırması › Makaleler › <b>Yapay Zekâ Ajanları</b></span>
+          <span class="en">Thesis › Articles › <b>AI Agents</b></span>
+          <span class="sp"><i></i><i></i><i></i></span>
+        </div>
+        <div class="mock-panels">
+          <div class="mock-src a a1">
+            <div class="mock-label"><span class="tr">Kaynak</span><span class="en">Source</span></div>
+            <div class="mock-cite"><span class="tr">Kaynak: J. Doe — AI Weekly · aiweekly.example · 12 Ağu 2026</span><span class="en">Source: J. Doe — AI Weekly · aiweekly.example · Aug 12, 2026</span></div>
+            <h4><span class="tr">Yapay Zekâ Ajanları: Kısa Bir Giriş</span><span class="en">AI Agents: A Short Introduction</span></h4>
+            <p><span class="tr">Yapay zekâ ajanları, bir hedefe ulaşmak için kendi adımlarını planlayan ve araçlarını kendi seçen sistemlerdir.</span><span class="en">AI agents are systems that plan their own steps and choose their own tools to reach a goal.</span></p>
+            <p><span class="tr">Klasik bir programdan farkı, ne yapacağının her satırının önceden yazılmamış olmasıdır; model duruma göre karar verir.</span><span class="en">Unlike a classic program, not every line of what it does is written in advance; the model decides in context.</span></p>
+            <p><span class="tr">Bu esneklik güçlüdür, ama denetimi zorlaştırır. İzlenebilirlik şarttır.</span><span class="en">This flexibility is powerful, but it makes oversight harder. Traceability is essential.</span></p>
+          </div>
+          <div class="mock-work">
+            <div class="mock-label a a2"><span class="tr">Çalışma alanı</span><span class="en">Workspace</span></div>
+            <div class="mock-add a a2">+ <span class="tr">Blok ekle</span><span class="en">Add block</span></div>
+            <div class="mock-block a a3">
+              <div class="mock-bh">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg>
+                <span class="tr">Özet · Türkçe</span><span class="en">Summary · English</span>
+                <span class="ai">✦ AI</span>
+              </div>
+              <div class="mock-callout a a4">
+                <b><span class="tr">ANA FİKİR</span><span class="en">MAIN IDEA</span></b><br>
+                <span class="tr">Ajanlar kendi adımlarını planlayıp araçlarını seçer; güçlüdürler ama denetlenebilir olmaları gerekir.</span>
+                <span class="en">Agents plan their own steps and pick their tools; they are powerful but must remain controllable.</span>
+                <svg class="ink ink-under" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path class="p1" d="M2 8 C 14 2, 26 12, 40 7 S 64 2, 80 8 S 106 12, 122 6 S 150 2, 166 8 S 190 11, 198 6"/></svg>
+              </div>
+              <p class="mock-line a a5"><span class="tr">Klasik programda her adım önceden yazılır; ajanda kararı <mark>model<svg class="ink ink-circle" viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true"><path class="p2" d="M52 6 C 20 4, 4 12, 6 24 C 8 36, 40 42, 66 38 C 90 34, 98 24, 92 14 C 86 6, 60 2, 44 8"/></svg></mark> o anki duruma göre verir.</span><span class="en">In a classic program every step is written up front; in an agent the <mark>model<svg class="ink ink-circle" viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true"><path class="p2" d="M52 6 C 20 4, 4 12, 6 24 C 8 36, 40 42, 66 38 C 90 34, 98 24, 92 14 C 86 6, 60 2, 44 8"/></svg></mark> decides in the moment.</span></p>
+              <p class="mock-line a a6"><span class="tr">Esneklik güç katar ama denetimi zorlaştırır; bu yüzden küçük, doğrulanabilir adımlar gerekir.</span><span class="en">Flexibility adds power but weakens oversight; hence small, verifiable steps.</span></p>
+              <p class="mock-line a a7"><span class="tr">İyi tasarlanmış bir ajan, izlenebilir adımlardan oluşur.</span><span class="en">A well-designed agent is built from traceable steps.</span></p>
+              <svg class="ink ink-note" viewBox="0 0 130 80" aria-hidden="true">
+                <path class="p3" d="M98 40 C 84 50, 70 58, 52 66 M52 66 l 12 -2 M52 66 l 2 -11"/>
+                <text class="t1" x="62" y="34" transform="rotate(-8 62 34)"><tspan class="tr">bunu sor!</tspan><tspan class="en">ask this!</tspan></text>
+                <text class="sticker" x="104" y="78">⭐️</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="replay" type="button" id="replay">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+        <span class="tr">Tekrar oynat</span><span class="en">Play again</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ——— üç adım ——— -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Nasıl çalışır</span><span class="en">How it works</span></p>
+      <h2><span class="tr">Kaynağı sen getirirsin. Gerisi yanında olur.</span><span class="en">You bring the source. The rest happens beside you.</span></h2>
+      <p><span class="tr">PaperReader arka planda gezinmez, senin adına hiçbir yere giriş yapmaz. Hangi metnin uygulamaya gireceğine her zaman sen karar verirsin.</span><span class="en">PaperReader never crawls in the background and never logs in on your behalf. You always decide which text enters the app.</span></p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <h3><span class="tr">Getir</span><span class="en">Bring it</span></h3>
+        <p><span class="tr">Uygulama içi tarayıcıdan bir sayfa, Dosyalar'dan bir PDF ya da Safari'nin Paylaş menüsünden tek dokunuş. Metin, resim ve tablolarıyla yapısı korunarak alınır.</span><span class="en">A page from the built-in browser, a PDF from Files, or one tap from Safari's Share sheet. Text, images and tables come in with their structure intact.</span></p>
+      </div>
+      <div class="step reveal d1">
+        <h3><span class="tr">Çalış</span><span class="en">Work on it</span></h3>
+        <p><span class="tr">Sağ panele blok ekle: özet, açıklamalı metin, terimler sözlüğü, öğrenme kartları ya da kaynağa soru sorduğun sohbet. Her blok istediğin dilde üretilir.</span><span class="en">Add blocks to the right panel: a summary, annotated text, a glossary, flashcards, or a chat that answers from the source. Every block is generated in the language you choose.</span></p>
+      </div>
+      <div class="step reveal d2">
+        <h3><span class="tr">Üzerine yaz</span><span class="en">Write on it</span></h3>
+        <p><span class="tr">Her bloğun üstü şeffaf bir tuvaldir. Kalemle çiz, altını çiz, damga bas, metin kutusu koy. Notların içeriğe yapışır; kaydırınca ve yakınlaştırınca yerinden oynamaz.</span><span class="en">Every block carries a transparent canvas. Draw, underline, stamp, drop a text box. Your notes stick to the content and stay put when you scroll or zoom.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ——— düzen ——— -->
+<section id="duzen">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Düzen</span><span class="en">Structure</span></p>
+      <h2><span class="tr">Defter, bölüm, çalışma. Kâğıt bir defter gibi.</span><span class="en">Notebook, section, work. Like a paper notebook.</span></h2>
+      <p><span class="tr">Üç kademe, baştan tam. Her çalışma tek bir kaynağa bağlıdır; ilgili kaynaklar bir bölümde, konular defterlerde toplanır.</span><span class="en">Three levels, complete from day one. Each work is tied to a single source; related sources live in a section, topics in notebooks.</span></p>
+    </div>
+    <div class="hier reveal">
+      <div>
+        <div class="hlist">
+          <div class="hitem"><div class="n">1</div><div><h3><span class="tr">Defter</span><span class="en">Notebook</span></h3><p><span class="tr">Bir konu ya da amaç: "Tez Araştırması", "İngilizce Makaleler". Kenar çubuğunda durur, sürükleyerek sıralanır.</span><span class="en">A topic or a purpose: "Thesis", "English Articles". Sits in the sidebar; drag to reorder.</span></p></div></div>
+          <div class="hitem"><div class="n">2</div><div><h3><span class="tr">Bölüm</span><span class="en">Section</span></h3><p><span class="tr">Defterin sayfa sekmesi; ilgili kaynakların klasörü. Sohbet ve arama kapsamı buraya genişletilebilir.</span><span class="en">A page tab inside the notebook; a folder of related sources. Chat and search can widen their scope to it.</span></p></div></div>
+          <div class="hitem"><div class="n">3</div><div><h3><span class="tr">Çalışma</span><span class="en">Work</span></h3><p><span class="tr">Tek kaynak + çalışma alanı. Yıldızla, mühürle, okuma durumunu izle; filtrele, sırala, başka deftere taşı. Silinen çöp kutusuna gider.</span><span class="en">One source + one workspace. Star it, stamp it, track reading state; filter, sort, move to another notebook. Deleted items go to the trash.</span></p></div></div>
+        </div>
+      </div>
+      <div class="lib" aria-hidden="true">
+        <div class="lib-side">
+          <div class="mock-label"><span class="tr">Defterler</span><span class="en">Notebooks</span></div>
+          <div class="lib-nb on"><i></i><span class="tr">Tez Araştırması</span><span class="en">Thesis</span></div>
+          <div class="lib-nb"><i></i><span class="tr">İngilizce Makaleler</span><span class="en">English Articles</span></div>
+          <div class="lib-nb"><i></i><span class="tr">Hobiler</span><span class="en">Hobbies</span></div>
+        </div>
+        <div class="lib-main">
+          <div class="lib-tabs">
+            <span class="lib-tab on"><span class="tr">Makaleler</span><span class="en">Articles</span></span>
+            <span class="lib-tab"><span class="tr">Kitaplar</span><span class="en">Books</span></span>
+            <span class="lib-tab">+</span>
+          </div>
+          <div class="lib-grid">
+            <div class="lib-w add">+ <span class="tr">Yeni çalışma</span><span class="en">New work</span></div>
+            <div class="lib-w"><span class="k">PDF</span><div class="t"><span class="tr">Yapay Zekâ Ajanları: Kısa Bir Giriş</span><span class="en">AI Agents: A Short Introduction</span></div><div class="m"><span>6 <span class="tr">blok</span><span class="en">blocks</span></span><b>★★★★☆</b></div></div>
+            <div class="lib-w"><span class="k">WEB</span><div class="t"><span class="tr">Dikkat Mekanizması Nedir?</span><span class="en">What Is Attention?</span></div><div class="m"><span>3 <span class="tr">blok</span><span class="en">blocks</span></span><b>★★★☆☆</b></div></div>
+            <div class="lib-w"><span class="k">DOCX</span><div class="t"><span class="tr">Ders Notları · Hafta 4</span><span class="en">Lecture Notes · Week 4</span></div><div class="m"><span>2 <span class="tr">blok</span><span class="en">blocks</span></span><b>★★★★★</b></div></div>
+          </div>
+        </div>
+        <span class="tagl t1"><span class="tr">defter</span><span class="en">notebook</span></span>
+        <span class="tagl t2"><span class="tr">↑ bölüm</span><span class="en">↑ section</span></span>
+        <span class="tagl t3"><span class="tr">çalışma ↑</span><span class="en">work ↑</span></span>
+      </div>
+    </div>
+    <div class="shots">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-kutuphane.jpg" data-src-en="img/en-kutuphane.jpg" src="img/tr-kutuphane.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Kütüphane.</span><span class="en">Library.</span></b> <span class="tr">Solda defterler, üstte bölüm sekmeleri, ortada çalışma kartları; arama tüm kaynaklarda.</span><span class="en">Notebooks on the left, section tabs on top, work cards in the middle; search across all sources.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d1">
+        <img data-src-tr="img/tr-ciftpanel.jpg" data-src-en="img/en-ciftpanel.jpg" src="img/tr-ciftpanel.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Çalışma.</span><span class="en">Work.</span></b> <span class="tr">Solda kaynak, künyesiyle; sağda blokların listesi. Bloklar sürüklenerek sıralanır.</span><span class="en">Source with its citation on the left; the block list on the right. Blocks are reordered by dragging.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— bloklar ——— -->
+<section id="bloklar">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Çalışma alanı</span><span class="en">The workspace</span></p>
+      <h2><span class="tr">Altı blok türü. Hepsi tek kaynağa bağlı.</span><span class="en">Six kinds of block. All tied to one source.</span></h2>
+      <p><span class="tr">Yapay zeka blokları bir kez üretilir ve donar; sonra yalnızca senin notlarınla değişir. Yeni bir bakış istersen yeni bir blok eklersin.</span><span class="en">AI blocks are generated once and frozen; after that only your notes change them. Want a fresh take? Add another block.</span></p>
+    </div>
+    <div class="blocks">
+      <div class="blk reveal">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg><span class="tr">Özet</span><span class="en">Summary</span></div>
+        <p><span class="tr">Belgenin boyutuyla ölçeklenen, başlıklı bir özet. Üstte ANA FİKİR, altta SONUÇ; arada Önemli / Tanım / Örnek kutuları.</span><span class="en">A headed summary that scales with the document. MAIN IDEA on top, CONCLUSION at the bottom, Important / Definition / Example callouts in between.</span></p>
+        <span class="tag ai">✦ <span class="tr">Yapay zeka</span><span class="en">AI</span></span>
+      </div>
+      <div class="blk reveal d1">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="tr">Açıklamalı Metin</span><span class="en">Annotated Text</span></div>
+        <p><span class="tr">Kaynağın birebir metni — istersen kendi dilinde — ve üstüne yapay zekanın eklediği katman: tanımlar, terimler, önemli noktalar, fosforlu vurgular. Gövde asla yeniden yazılmaz.</span><span class="en">The source, word for word — in your language if you like — plus an AI layer on top: definitions, terms, key points, highlighter marks. The body itself is never rewritten.</span></p>
+        <span class="tag ai">✦ <span class="tr">Yapay zeka</span><span class="en">AI</span></span>
+      </div>
+      <div class="blk reveal d2">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h6"/></svg><span class="tr">Terimler Sözlüğü</span><span class="en">Glossary</span></div>
+        <p><span class="tr">Metindeki kilit terimler ve kısa tanımları. Salt referans: okurken dönüp bakılan, üstüne not alınan bir liste.</span><span class="en">Key terms from the text with short definitions. Pure reference: a list you return to while reading and write notes over.</span></p>
+        <span class="tag ai">✦ <span class="tr">Yapay zeka</span><span class="en">AI</span></span>
+      </div>
+      <div class="blk reveal">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 4h14v12"/></svg><span class="tr">Öğrenme Kartları</span><span class="en">Flashcards</span></div>
+        <p><span class="tr">Kaynaktan üretilen soru-cevap kartları. Dokun, çevir; Bilemedim / Zorlandım / Kolaydı de. Aralıklı tekrar sırası senin cevaplarına göre kurulur.</span><span class="en">Question-and-answer cards built from the source. Tap to flip; mark it Missed / Hard / Easy. Spaced repetition orders them from your answers.</span></p>
+        <span class="tag ai">✦ <span class="tr">Yapay zeka</span><span class="en">AI</span></span>
+      </div>
+      <div class="blk reveal d1">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="tr">Sohbet</span><span class="en">Chat</span></div>
+        <p><span class="tr">Kaynağa soru sor; yanıt metne dayanır ve akarak gelir. Kapsamı genişlet: bu bölüm, bu defter. Metnin dışına çıkmak istersen "Genel" moda geç — yanıt öyle etiketlenir.</span><span class="en">Ask the source a question; the answer is grounded in the text and streams in. Widen the scope: this section, this notebook. Step outside the text with "General" mode — the answer is labeled as such.</span></p>
+        <span class="tag ai">✦ <span class="tr">Yapay zeka</span><span class="en">AI</span></span>
+      </div>
+      <div class="blk reveal d2">
+        <div class="blk-h"><svg viewBox="0 0 24 24"><path d="M4 20L12 4l8 16"/><path d="M8 14h8"/></svg><span class="tr">Boş Tuval</span><span class="en">Blank Canvas</span></div>
+        <p><span class="tr">Altında basılı içerik olmayan serbest sayfa. Kendi düşüncelerin, şemaların, çizimlerin için; yazdıkça büyür.</span><span class="en">A free page with nothing printed underneath. For your own thoughts, diagrams, sketches; it grows as you write.</span></p>
+        <span class="tag"><span class="tr">Kalem</span><span class="en">Pencil</span></span>
+      </div>
+    </div>
+
+    <div class="shots">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-aciklamali.jpg" data-src-en="img/en-aciklamali.jpg" src="img/tr-aciklamali.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Açıklamalı Metin.</span><span class="en">Annotated Text.</span></b> <span class="tr">Gövde aynen; TANIM kutusu ve fosforlu vurgu yapay zekadan.</span><span class="en">The body verbatim; the DEFINITION callout and the highlight come from AI.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d1">
+        <img data-src-tr="img/tr-sohbet.jpg" data-src-en="img/en-sohbet.jpg" src="img/tr-sohbet.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Sohbet.</span><span class="en">Chat.</span></b> <span class="tr">Kapsam çipleri: bu kaynak · bu bölüm · bu defter.</span><span class="en">Scope chips: this source · this section · this notebook.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— öğrenme ——— -->
+<section class="band learn" id="ogrenme">
+  <div class="wrap learn-grid">
+    <div class="reveal">
+      <p class="kicker"><span class="tr">Öğrenme</span><span class="en">Learning</span></p>
+      <h2><span class="tr">Okuduğun kalsın diye: kartlar ve sözlük.</span><span class="en">So it sticks: cards and a glossary.</span></h2>
+      <p class="lead"><span class="tr">Öğrenme Kartları kaynaktan soru-cevap üretir. Dokun, çevir; cevabına göre bir yüz seç. Aralıklı tekrar (SM-2) zorlandığın kartları öne, bildiklerini geriye alır. Her şey blok içinde: bir kaynak, bir deste.</span><span class="en">Flashcards are generated from the source. Tap, flip, pick a face for how it went. Spaced repetition (SM-2) brings the hard cards forward and pushes the known ones back. All inside the block: one source, one deck.</span></p>
+      <p class="lead" style="margin-top:14px"><span class="tr"><b>Terimler Sözlüğü</b> ise metindeki kilit kavramları kısa tanımlarıyla listeler. Salt referans: dönüp bakılır, üstüne not alınır; kart üretimine de yumuşak bağlam olur.</span><span class="en"><b>The Glossary</b> lists the key concepts of the text with short definitions. Pure reference: you look back at it, write over it; it also softly guides card generation.</span></p>
+    </div>
+    <div class="reveal d1">
+      <div class="flash-wrap">
+        <span class="hand flash-note"><span class="tr">dokun, çevir</span><span class="en">tap to flip</span></span>
+        <div class="flash" id="flash" role="button" tabindex="0" aria-label="Öğrenme kartı">
+          <div class="face front"><span class="num" id="flashNum">1 / 3</span><span id="flashQ"></span><span class="hint"><span class="tr">Çevirmek için dokun</span><span class="en">Tap to flip</span></span></div>
+          <div class="face back"><span id="flashA"></span>
+            <div class="faces">
+              <button type="button" data-grade="1"><span class="e">😕</span><span class="tr">Bilemedim</span><span class="en">Missed</span></button>
+              <button type="button" data-grade="3"><span class="e">🙂</span><span class="tr">Zorlandım</span><span class="en">Hard</span></button>
+              <button type="button" data-grade="5"><span class="e">😀</span><span class="tr">Kolaydı</span><span class="en">Easy</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="deck-dots" id="deckDots"><i class="on"></i><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="shots">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-terimler.jpg" data-src-en="img/en-terimler.jpg" src="img/tr-terimler.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Terimler Sözlüğü.</span><span class="en">Glossary.</span></b> <span class="tr">Terim + tanım; üretilince donar, üstüne kalemle yazılır.</span><span class="en">Term + definition; frozen once generated, written over with the pencil.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d1">
+        <img data-src-tr="img/tr-kart-arka.jpg" data-src-en="img/en-kart-arka.jpg" src="img/tr-kart-arka.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Öğrenme Kartları.</span><span class="en">Flashcards.</span></b> <span class="tr">Çevrilmiş kart: cevap ve üç yüz. Başlıkta konum sayacı ve notların dağılımı; yüz çipleriyle desteyi süz.</span><span class="en">A flipped card: the answer and three faces. The header shows position and grade distribution; filter the deck with the face chips.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— kalem ——— -->
+<section class="band pen" id="kalem">
+  <div class="wrap pen-grid">
+    <div class="reveal">
+      <p class="kicker"><span class="tr">Apple Pencil</span><span class="en">Apple Pencil</span></p>
+      <h2><span class="tr">Notların içeriğe yapışır. Ekrana değil.</span><span class="en">Your notes stick to the content. Not to the screen.</span></h2>
+      <p class="lead"><span class="tr">Mürekkep, bloğun kendi koordinatında saklanır. Yakınlaştır, kaydır, tam ekrana geç, bir hafta sonra başka iPad'de aç — çizdiğin çizgi aynı kelimenin altında durur.</span><span class="en">Ink is stored in the block's own coordinate space. Zoom, scroll, go full screen, open it a week later on another iPad — the line you drew is still under the same word.</span></p>
+      <ul>
+        <li><b><span class="tr">Kalem çizer, parmak kaydırır.</span><span class="en">Pencil draws, finger scrolls.</span></b> <span class="tr">Mod düğmesi yok.</span><span class="en">No mode switch.</span></li>
+        <li><b><span class="tr">Metin kutuları, damgalar, emojiler, rakamlar.</span><span class="en">Text boxes, stamps, emoji, numerals.</span></b> <span class="tr">Uzun bas, tam o noktaya yerleştir.</span><span class="en">Long-press to place them exactly there.</span></li>
+        <li><b><span class="tr">Yer imleri.</span><span class="en">Bookmarks.</span></b> <span class="tr">Bir satırı işaretle, etiketle; kütüphaneden tek listede bul.</span><span class="en">Mark a line, tag it; find it later in one list from the library.</span></li>
+        <li><b><span class="tr">Sağ kenar boşluğu senin.</span><span class="en">The right margin is yours.</span></b> <span class="tr">Tam ekranda metin küçülür, yanına not payı açılır.</span><span class="en">In full screen the text shrinks and a note margin opens beside it.</span></li>
+        <li><b><span class="tr">PDF olarak kaydet.</span><span class="en">Save as PDF.</span></b> <span class="tr">Blok, üstündeki her notla birlikte; kaynağın künyesi başta.</span><span class="en">The block with every note on it; the source citation on top.</span></li>
+      </ul>
+    </div>
+    <div class="pen-shot reveal d1">
+      <div class="hand">
+        <svg viewBox="0 0 90 50" aria-hidden="true"><path d="M85 8 C 60 6, 30 14, 6 40 M6 40 l 12 -2 M6 40 l 4 -11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="tr">gerçek mürekkep</span><span class="en">real ink</span>
+      </div>
+      <img data-src-tr="img/tr-ozet.jpg" data-src-en="img/en-ozet.jpg" src="img/tr-ozet.jpg" alt="" width="1400" height="1050" loading="lazy">
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="place">
+      <div class="pm reveal" aria-hidden="true">
+        <h5><span class="tr">Neden dikkatli olmalı?</span><span class="en">Why be careful?</span></h5>
+        <p><span class="tr">Kararlar büyük ölçüde modele bırakılır; bu esneklik denetimi zorlaştırır. Ajanın neden belirli bir adımı attığını anlayabilmek için izlenebilirlik şarttır.</span><span class="en">Decisions are largely left to the model; this flexibility makes oversight harder. To understand why an agent took a step, traceability is essential.</span></p>
+        <p><span class="tr">İyi tasarlanmış bir ajan, büyük ve belirsiz hamleler yerine küçük, doğrulanabilir adımlardan oluşur.</span><span class="en">A well-designed agent is built from small, verifiable steps rather than large, opaque moves.</span></p>
+        <p><span class="tr">Her adımın çıktısı kaydedilir; hata olduğunda geriye dönüp hangi kararın yanlış olduğunu bulmak mümkün olur.</span><span class="en">Each step's output is recorded; when something fails, you can walk back and find the wrong decision.</span></p>
+        <span class="ring"></span><span class="finger"></span>
+        <div class="grid">
+          <div class="gl"><span class="tr">Yerleştir</span><span class="en">Place</span></div>
+          <div class="row"><span class="chip">🔖 <span class="tr">Yer imi</span><span class="en">Bookmark</span></span><span class="chip">Aa <span class="tr">Metin</span><span class="en">Text</span></span><span class="chip blue-t">1 <span class="tr">Eyl</span><span class="en">Sep</span> 2026</span></div>
+          <div class="gl"><span class="tr">Damgalar</span><span class="en">Stamps</span></div>
+          <div class="row"><span class="chip st green">✓ <span class="tr">TAMAMLANDI</span><span class="en">DONE</span></span><span class="chip st amber">◐ <span class="tr">YARIM KALDI</span><span class="en">HALF DONE</span></span><span class="chip st gray">✕ <span class="tr">İPTAL</span><span class="en">CANCELED</span></span><span class="chip st red">! <span class="tr">ÖNEMLİ</span><span class="en">IMPORTANT</span></span><span class="chip st teal">↻ <span class="tr">TEKRAR BAK</span><span class="en">REVIEW</span></span><span class="chip st blue pick">? <span class="tr">SORU</span><span class="en">QUESTION</span></span></div>
+          <div class="gl"><span class="tr">Tepkiler</span><span class="en">Reactions</span></div>
+          <div class="row"><span class="chip em">⭐️</span><span class="chip em">👍</span><span class="chip em">👏</span><span class="chip em">😀</span><span class="chip em">😞</span><span class="chip em">🤔</span></div>
+          <div class="gl"><span class="tr">Rakamlar</span><span class="en">Numbers</span></div>
+          <div class="row"><span class="chip num">0</span><span class="chip num">1</span><span class="chip num">2</span><span class="chip num">3</span><span class="chip num">4</span><span class="chip num">5</span></div>
+        </div>
+        <span class="stamp"><b>?</b><span class="tr">SORU</span><span class="en">QUESTION</span></span>
+      </div>
+      <div class="reveal d1">
+        <p class="kicker"><span class="tr">Yerleştir</span><span class="en">Place</span></p>
+        <h3 style="font-size:1.6rem;margin:10px 0 12px"><span class="tr">Uzun bas, tam oraya koy.</span><span class="en">Long-press, drop it right there.</span></h3>
+        <p style="color:var(--ink-2)"><span class="tr">Tuvalde parmağınla yarım saniye bas: YERLEŞTİR ızgarası açılır. Metin kutusu, tarih damgası, yer imi; ÖNEMLİ / SORU / TEKRAR BAK mühürleri; renkli tepki emojileri; rakamlar. Seçtiğin şey bastığın noktaya iner, hafif rastgele bir eğimle. Mühürlerin rengi, boyutu, opaklığı ve eğim aralığı Ayarlar'da senin.</span><span class="en">Hold a finger on the canvas for half a second: the PLACE grid opens. Text box, date stamp, bookmark; IMPORTANT / QUESTION / REVISIT seals; colorful reaction emoji; numerals. Whatever you pick lands exactly where you pressed, with a slight random tilt. Seal color, size, opacity and tilt range are yours in Settings.</span></p>
+      </div>
+    </div>
+    <div class="shots one">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-yerlestir.jpg" data-src-en="img/en-yerlestir.jpg" src="img/tr-yerlestir.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">YERLEŞTİR ızgarası.</span><span class="en">The PLACE grid.</span></b> <span class="tr">Yer imi, metin kutusu, tarih; altı mühür; tepkiler; rakamlar — hepsi bastığın noktaya iner.</span><span class="en">Bookmark, text box, date; six seals; reactions; numerals — all land where you pressed.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— yer imleri ——— -->
+<section id="yerimleri">
+  <div class="wrap">
+    <div class="bm">
+      <div class="reveal">
+        <p class="kicker"><span class="tr">Yer imleri</span><span class="en">Bookmarks</span></p>
+        <h2 style="font-size:clamp(2rem,3.6vw,2.9rem);margin:12px 0 18px"><span class="tr">Bir satırı işaretle, sonra bul.</span><span class="en">Mark a line, find it later.</span></h2>
+        <p class="lead"><span class="tr">Blokta bir konumu iğnele, birkaç etiket ve istersen kısa bir not ekle. İğne satırın sol boşluğunda durur, PDF'e girmez. Kütüphanedeki "Yer İmleri" listesi defterlere, etiketlere ve aramaya göre süzülür; dokununca tam o satıra gider.</span><span class="en">Pin a spot in a block, add a few tags and, if you like, a short note. The pin sits in the left margin and never enters the PDF. The "Bookmarks" list in the library filters by notebook, tag and search; tap one and you land on that exact line.</span></p>
+      </div>
+      <div class="bm-mock reveal d1" aria-hidden="true">
+        <div class="bm-blk">
+          <span class="pinring"></span>
+          <svg class="pin" viewBox="0 0 16 16"><path d="M8 1.5c-2.5 0-4.3 1.8-4.3 4.2 0 3 4.3 8.8 4.3 8.8s4.3-5.8 4.3-8.8C12.3 3.3 10.5 1.5 8 1.5z" fill="var(--pencil)"/><circle cx="8" cy="5.8" r="1.7" fill="#fff"/></svg>
+          <h5><span class="tr">Esnekliğin bedeli</span><span class="en">The price of flexibility</span></h5>
+          <p><span class="tr">Bu esneklik güçlüdür, ama denetimi zorlaştırır.</span><span class="en">This flexibility is powerful, but it makes oversight harder.</span></p>
+          <p><span class="tr">Ajanın neden belirli bir adımı attığını anlayabilmek için izlenebilirlik şarttır.</span><span class="en">To understand why an agent took a step, traceability is essential.</span></p>
+          <p><span class="tr">İyi tasarlanmış bir ajan, küçük ve doğrulanabilir adımlardan oluşur.</span><span class="en">A well-designed agent is built from small, verifiable steps.</span></p>
+        </div>
+        <div class="bm-list">
+          <div class="flt"><span class="on"><span class="tr">Tüm defterler ▾</span><span class="en">All notebooks ▾</span></span><span>#<span class="tr">tanım</span><span class="en">definition</span></span><span>#<span class="tr">sor</span><span class="en">ask</span></span><span>#<span class="tr">tez</span><span class="en">thesis</span></span></div>
+          <div class="bm-row hi"><i></i><div><div class="path"><b><span class="tr">Tez Araştırması</span><span class="en">Thesis</span></b> · <span class="tr">Yapay Zekâ Ajanları</span><span class="en">AI Agents</span> · <span class="tr">Açıklamalı</span><span class="en">Annotated</span> · 12 <span class="tr">Ağu</span><span class="en">Aug</span></div><div class="note"><span class="tr">İzlenebilirlik → tez 2. bölüm</span><span class="en">Traceability → thesis ch. 2</span></div><div class="tags"><span>#<span class="tr">tez</span><span class="en">thesis</span></span><span>#<span class="tr">sor</span><span class="en">ask</span></span></div></div></div>
+          <div class="bm-row"><i></i><div><div class="path"><b><span class="tr">Tez Araştırması</span><span class="en">Thesis</span></b> · <span class="tr">Dikkat Mekanizması</span><span class="en">Attention</span> · <span class="tr">Özet</span><span class="en">Summary</span> · 9 <span class="tr">Ağu</span><span class="en">Aug</span></div><div class="tags"><span>#<span class="tr">tanım</span><span class="en">definition</span></span></div></div></div>
+          <div class="bm-row"><i style="background:var(--teal)"></i><div><div class="path"><b><span class="tr">İngilizce Makaleler</span><span class="en">English Articles</span></b> · <span class="tr">Ders Notları · Hafta 4</span><span class="en">Lecture Notes · Week 4</span> · <span class="tr">Terimler</span><span class="en">Glossary</span> · 2 <span class="tr">Ağu</span><span class="en">Aug</span></div><div class="tags"><span>#<span class="tr">tanım</span><span class="en">definition</span></span><span>#<span class="tr">sınav</span><span class="en">exam</span></span></div></div></div>
+          <div class="bm-row"><i style="background:var(--pencil)"></i><div><div class="path"><b><span class="tr">Hobiler</span><span class="en">Hobbies</span></b> · <span class="tr">Ekşi Maya Rehberi</span><span class="en">Sourdough Guide</span> · <span class="tr">Açıklamalı</span><span class="en">Annotated</span> · 28 <span class="tr">Tem</span><span class="en">Jul</span></div><div class="note"><span class="tr">Hidrasyon oranı tablosu</span><span class="en">Hydration ratio table</span></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="shots one">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-yerimleri.jpg" data-src-en="img/en-yerimleri.jpg" src="img/tr-yerimleri.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Yer İmleri listesi.</span><span class="en">The Bookmarks list.</span></b> <span class="tr">Kenar çubuğundan açılır; etiket çipleri ve "Yer imlerinde" arama kapsamıyla süzülür; satır Defter · Çalışma · Blok · dil · tarih gösterir.</span><span class="en">Opens from the sidebar; filtered by tag chips and the "In bookmarks" search scope; each row shows Notebook · Work · Block · language · date.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— kaynaklar ——— -->
+<section id="kaynaklar">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Kaynak kanalları</span><span class="en">Source channels</span></p>
+      <h2><span class="tr">Dört yol, tek kayıt.</span><span class="en">Four ways in, one record.</span></h2>
+      <p><span class="tr">Nereden gelirse gelsin kaynak, aynı yapıya çözülür: başlıklar, paragraflar, resimler, tablolar. Üstünde künye, altında senin çalışman.</span><span class="en">Whatever the origin, a source resolves into the same structure: headings, paragraphs, images, tables. A citation on top, your work below.</span></p>
+    </div>
+    <div class="sources">
+      <div class="src reveal">
+        <h3><span class="tr">Web</span><span class="en">Web</span></h3>
+        <p><span class="tr">Uygulama içi tarayıcı; kendi oturumunla. Favori panosu kategorili; görseller kaydedilir, link çürüse de kalır.</span><span class="en">A built-in browser using your own sessions. A categorized favorites board; images are saved so the source survives link rot.</span></p>
+        <small><span class="tr">Güvenli arama zorunlu · içerik filtreli</span><span class="en">Safe search enforced · content filtered</span></small>
+      </div>
+      <div class="src reveal d1">
+        <h3><span class="tr">Belge</span><span class="en">Document</span></h3>
+        <p><span class="tr">PDF, Word, RTF, TXT, Markdown. Başlıklar yazı boyutundan tanınır; gömülü resimler okunma sırasında yerini alır.</span><span class="en">PDF, Word, RTF, TXT, Markdown. Headings are detected from type size; embedded images land in reading order.</span></p>
+        <small>PDF · DOCX · RTF · TXT · MD</small>
+      </div>
+      <div class="src reveal d2">
+        <h3><span class="tr">Paylaş</span><span class="en">Share</span></h3>
+        <p><span class="tr">Safari'de ya da Dosyalar'da Paylaş → PaperReader. Uygulama açılır, hangi deftere gideceğini sorar.</span><span class="en">In Safari or Files: Share → PaperReader. The app opens and asks which notebook it belongs to.</span></p>
+        <small><span class="tr">URL · metin · dosya</span><span class="en">URL · text · file</span></small>
+      </div>
+      <div class="src reveal d3">
+        <h3><span class="tr">Yapıştır</span><span class="en">Paste</span></h3>
+        <p><span class="tr">Panodaki metin, başlığıyla. E-posta, not, herhangi bir yerden.</span><span class="en">Text from the clipboard, with a title. From email, notes, anywhere.</span></p>
+        <small><span class="tr">Düz metin · Markdown</span><span class="en">Plain text · Markdown</span></small>
+      </div>
+    </div>
+
+    <div class="langs reveal">
+      <span class="kicker" style="border:0;background:none;padding:0;margin-right:8px"><span class="tr">30 dile çeviri</span><span class="en">Translation into 30 languages</span></span>
+      <span>Türkçe</span><span>English</span><span>Français</span><span>Deutsch</span><span>Español</span><span>Português</span><span>Italiano</span><span>Русский</span><span>中文</span><span>日本語</span><span>العربية</span><span class="more">+19</span>
+    </div>
+
+    <div class="shots three">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-kaynak_ekle.jpg" data-src-en="img/en-kaynak_ekle.jpg" src="img/tr-kaynak_ekle.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Kaynak ekle.</span><span class="en">Add a source.</span></b> <span class="tr">Web · Belge · Yapıştır — hedef defter ve bölümü seç.</span><span class="en">Web · Document · Paste — pick the target notebook and section.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d1">
+        <img data-src-tr="img/tr-favoriler.jpg" data-src-en="img/en-favoriler.jpg" src="img/tr-favoriler.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Favori panosu.</span><span class="en">Favorites board.</span></b> <span class="tr">Kategorili, sürükle-bırakla düzenlenir, iCloud'da eşitlenir.</span><span class="en">Categorized, arranged by drag and drop, synced through iCloud.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d2">
+        <img data-src-tr="img/tr-tarayici.jpg" data-src-en="img/en-tarayici.jpg" src="img/tr-tarayici.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Tarayıcı.</span><span class="en">Browser.</span></b> <span class="tr">Sayfa açıkken tek düğme: Çalışma Oluştur.</span><span class="en">One button once the page is open: Create Work.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— rapor ——— -->
+<section class="band" id="rapor">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Rapor</span><span class="en">Report</span></p>
+      <h2><span class="tr">Ne kadar okudun, ne kadar harcadın.</span><span class="en">How much you read, how much you spent.</span></h2>
+      <p><span class="tr">Kütüphanenin büyümesi, okuma hunisi, zayıf kartlar, günlük etkinlik haritası ve yapay zeka harcaması — hepsi kendi verinden türetilir, cihazda. Zaman penceresini seç; her grafik ona uyar.</span><span class="en">Library growth, the reading funnel, weak cards, a daily activity map and AI spend — all derived from your own data, on device. Pick a time window; every chart follows.</span></p>
+    </div>
+    <div class="rep reveal" aria-hidden="true">
+      <div class="rep-top">
+        <span class="ttl"><span class="tr">Rapor</span><span class="en">Report</span></span>
+        <span><span class="tr">Bugün</span><span class="en">Today</span></span><span><span class="tr">Bu hafta</span><span class="en">This week</span></span><span class="on"><span class="tr">Bu ay</span><span class="en">This month</span></span><span><span class="tr">Bu yıl</span><span class="en">This year</span></span><span><span class="tr">Tümü</span><span class="en">All time</span></span>
+      </div>
+      <div class="rep-stats">
+        <div class="rep-stat"><b data-count="4">0</b><span class="tr">Defter</span><span class="en">Notebooks</span></div>
+        <div class="rep-stat"><b data-count="11">0</b><span class="tr">Bölüm</span><span class="en">Sections</span></div>
+        <div class="rep-stat"><b data-count="38">0</b><span class="tr">Çalışma</span><span class="en">Works</span></div>
+        <div class="rep-stat"><b data-count="142">0</b><span class="tr">Blok</span><span class="en">Blocks</span></div>
+        <div class="rep-stat"><b data-count="96">0</b><span class="tr">Kart</span><span class="en">Cards</span></div>
+        <div class="rep-stat"><b data-count="217">0</b><span class="tr">Terim</span><span class="en">Terms</span></div>
+      </div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <h6><span class="tr">Kütüphane büyümesi</span><span class="en">Library growth</span><em><span class="tr">günlük</span><span class="en">daily</span></em></h6>
+          <svg viewBox="0 0 320 110" preserveAspectRatio="none" style="height:110px">
+            <line class="gridl" x1="0" y1="27" x2="320" y2="27"/><line class="gridl" x1="0" y1="55" x2="320" y2="55"/><line class="gridl" x1="0" y1="83" x2="320" y2="83"/>
+            <path class="area" d="M0 96 L20 94 L40 90 L60 88 L80 80 L100 78 L120 70 L140 66 L160 58 L180 56 L200 46 L220 44 L240 36 L260 30 L280 24 L300 18 L320 12 L320 110 L0 110 Z"/>
+            <path class="line" d="M0 96 L20 94 L40 90 L60 88 L80 80 L100 78 L120 70 L140 66 L160 58 L180 56 L200 46 L220 44 L240 36 L260 30 L280 24 L300 18 L320 12"/>
+          </svg>
+        </div>
+        <div class="rep-card">
+          <h6><span class="tr">AI harcaması</span><span class="en">AI spend</span><em>≈ $3.40</em></h6>
+          <div class="bars">
+            <div class="bar"><i class="c1" style="height:22px"></i><i class="c2" style="height:10px"></i><i class="c3" style="height:6px"></i></div>
+            <div class="bar"><i class="c1" style="height:30px"></i><i class="c2" style="height:14px"></i><i class="c3" style="height:8px"></i><i class="c4" style="height:4px"></i></div>
+            <div class="bar"><i class="c1" style="height:12px"></i><i class="c2" style="height:9px"></i><i class="c3" style="height:12px"></i></div>
+            <div class="bar"><i class="c1" style="height:40px"></i><i class="c2" style="height:18px"></i><i class="c3" style="height:10px"></i><i class="c4" style="height:6px"></i></div>
+            <div class="bar"><i class="c1" style="height:18px"></i><i class="c2" style="height:22px"></i><i class="c3" style="height:14px"></i></div>
+            <div class="bar"><i class="c1" style="height:26px"></i><i class="c2" style="height:12px"></i><i class="c3" style="height:20px"></i><i class="c4" style="height:8px"></i></div>
+          </div>
+          <div class="leg"><span><i style="background:#9A6A3A"></i><span class="tr">Çeviri</span><span class="en">Translation</span></span><span><i style="background:#2E7F8C"></i><span class="tr">Özet</span><span class="en">Summary</span></span><span><i style="background:#7E5A8C"></i><span class="tr">Sohbet</span><span class="en">Chat</span></span><span><i style="background:#B8A46A"></i><span class="tr">Diğer</span><span class="en">Other</span></span></div>
+        </div>
+      </div>
+      <div class="rep-card">
+        <h6><span class="tr">Etkinlik haritası</span><span class="en">Activity map</span><em><span class="tr">eklenen çalışma + AI çağrısı</span><span class="en">works added + AI calls</span></em></h6>
+        <div class="heat" id="heat"></div>
+      </div>
+      <p class="rep-note"><span class="tr">Maliyet tahminîdir: uygulama-içi fiyat tablosu × sağlayıcının bildirdiği token sayısı. Gerçek fatura sağlayıcında.</span><span class="en">Cost is an estimate: in-app price table × tokens reported by the provider. The real bill is at your provider.</span></p>
+    </div>
+    <div class="shots one">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-rapor-ust.jpg" data-src-en="img/en-rapor-ust.jpg" src="img/tr-rapor-ust.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Rapor.</span><span class="en">Report.</span></b> <span class="tr">Zaman penceresi üstte sabit; özet şeridi, büyüme eğrisi, eklemeler, kaynak dağılımı, defterler, okuma hunisi ve daha fazlası aşağı doğru sıralanır.</span><span class="en">The time window stays pinned on top; the summary strip, growth curve, additions, source distribution, notebooks, reading funnel and more follow below.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— ilkeler ——— -->
+<section class="band principles" id="ilkeler">
+  <div class="wrap princ-grid">
+    <div class="reveal">
+      <p class="kicker"><span class="tr">İlkeler</span><span class="en">Principles</span></p>
+      <p class="quote" style="margin-top:12px">
+        <span class="tr">Ben okurken <em>yardımcı</em> — arka planda hasat eden bot değil.</span>
+        <span class="en">An <em>assistant</em> while I read — not a bot harvesting in the background.</span>
+      </p>
+    </div>
+    <div class="plist">
+      <div class="pitem reveal">
+        <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div>
+          <h3><span class="tr">Kendi anahtarın, kendi sağlayıcın</span><span class="en">Your key, your provider</span></h3>
+          <p><span class="tr">Anthropic, Gemini, OpenAI ya da Groq — API anahtarını sen girersin; cihazda Keychain'de durur. Metin, sağlayıcıya doğrudan ve yalnızca sen onayladıktan sonra gider. Aradan geçen sunucu yok.</span><span class="en">Anthropic, Gemini, OpenAI or Groq — you enter your own API key; it lives in the device Keychain. Text goes straight to the provider, and only after you consent. No server in between.</span></p>
+        </div>
+      </div>
+      <div class="pitem reveal d1">
+        <svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 010-8 5 5 0 019.6-1.5A3.5 3.5 0 0117 17z"/></svg>
+        <div>
+          <h3><span class="tr">Kendi iCloud'unda</span><span class="en">In your own iCloud</span></h3>
+          <p><span class="tr">Defterler, notlar, mürekkep — hepsi senin özel iCloud veritabanında eşitlenir. Sil, yeniden kur, başka iPad'de aç: aynı yerden devam.</span><span class="en">Notebooks, notes, ink — all synced in your private iCloud database. Delete, reinstall, open on another iPad: pick up where you left off.</span></p>
+        </div>
+      </div>
+      <div class="pitem reveal d2">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 13h4"/></svg>
+        <div>
+          <h3><span class="tr">Kaynağa sadık</span><span class="en">Faithful to the source</span></h3>
+          <p><span class="tr">Sol panel her zaman orijinal dilde, üstünde kalıcı künye. Yapay zeka açıklamaları ayrı bir katmandır; metnin kendisine hiçbir zaman dokunmaz.</span><span class="en">The left panel is always in the original language with a permanent citation. AI annotations are a separate layer; they never touch the text itself.</span></p>
+        </div>
+      </div>
+      <div class="pitem reveal d3">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+        <div>
+          <h3><span class="tr">Harcaman gözünün önünde</span><span class="en">Spend in plain sight</span></h3>
+          <p><span class="tr">Her çağrının token'ı sayılır; aylık tahmini maliyet kategori ve sağlayıcıya göre Rapor ekranında. Hafif işler ucuz modele, ağır işler güçlü modele — sen seçersin.</span><span class="en">Every call's tokens are counted; estimated monthly cost by category and provider sits in the Report screen. Light jobs go to a cheap model, heavy jobs to a strong one — your choice.</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="shots">
+      <figure class="shot reveal">
+        <img data-src-tr="img/tr-gizlilik.jpg" data-src-en="img/en-gizlilik.jpg" src="img/tr-gizlilik.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Sağlayıcı bağlantıları.</span><span class="en">Provider connections.</span></b> <span class="tr">Dört sağlayıcı, her biri kendi anahtarıyla; bağlantı test edilir, onay ayrıca alınır.</span><span class="en">Four providers, each with its own key; the connection is tested and consent is asked separately.</span></figcaption>
+      </figure>
+      <figure class="shot reveal d1">
+        <img data-src-tr="img/tr-modeller.jpg" data-src-en="img/en-modeller.jpg" src="img/tr-modeller.jpg" alt="" width="1400" height="1050" loading="lazy">
+        <figcaption><b><span class="tr">Model yönlendirme.</span><span class="en">Model routing.</span></b> <span class="tr">Hafif işler (özet, sohbet) ucuz modele; ağır işler (çeviri, açıklama) güçlü modele.</span><span class="en">Light jobs (summary, chat) to a cheap model; heavy jobs (translation, annotation) to a strong one.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ——— fiyat ——— -->
+<section id="fiyat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker"><span class="tr">Fiyat</span><span class="en">Pricing</span></p>
+      <h2><span class="tr">Önce dene, sonra karar ver.</span><span class="en">Try first, decide later.</span></h2>
+      <p><span class="tr">Yapay zeka maliyeti sağlayıcına gider; PaperReader'ın kendisi yalnızca kaynak sayısına göre ücretlendirilir.</span><span class="en">AI costs go to your provider; PaperReader itself is priced only by how many sources you keep.</span></p>
+    </div>
+    <div class="plans">
+      <div class="plan reveal">
+        <h3><span class="tr">Ücretsiz</span><span class="en">Free</span></h3>
+        <div class="price"><span class="tr">10 kaynak</span><span class="en">10 sources</span></div>
+        <div class="sub"><span class="tr">ömür boyu, kart bilgisi yok</span><span class="en">for life, no card needed</span></div>
+        <ul>
+          <li><span class="tr">Tüm blok türleri, kalem, eşitleme</span><span class="en">All block types, pencil, sync</span></li>
+          <li><span class="tr">30 dile çeviri</span><span class="en">Translation into 30 languages</span></li>
+          <li><span class="tr">PDF dışa aktarma</span><span class="en">PDF export</span></li>
+        </ul>
+      </div>
+      <div class="plan pro reveal d1">
+        <span class="hand"><span class="tr">sınırsız ✓</span><span class="en">unlimited ✓</span></span>
+        <h3>PaperReader Pro</h3>
+        <div class="price"><span class="tr">Sınırsız</span><span class="en">Unlimited</span></div>
+        <div class="sub"><span class="tr">aylık ya da yıllık abonelik · güncel fiyat App Store'da</span><span class="en">monthly or yearly subscription · current price on the App Store</span></div>
+        <ul>
+          <li><span class="tr">Sınırsız kaynak</span><span class="en">Unlimited sources</span></li>
+          <li><span class="tr">Ücretsizdeki her şey</span><span class="en">Everything in Free</span></li>
+          <li><span class="tr">İstediğin zaman iptal</span><span class="en">Cancel any time</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ——— kapanış ——— -->
+<section class="band final">
+  <div class="wrap reveal">
+    <p class="kicker"><span class="tr">iPad'inde</span><span class="en">On your iPad</span></p>
+    <h2><span class="tr">Bir sonraki makaleyi<br>PaperReader'da oku.</span><span class="en">Read the next article<br>in PaperReader.</span></h2>
+    <p class="lead"><span class="tr">İlk 10 kaynak ücretsiz. Uygulama açılınca kısa bir tanıtım turu seni karşılar.</span><span class="en">First 10 sources free. A short guided tour greets you on first launch.</span></p>
+    <div class="cta">
+      <a class="btn btn-primary store-link" href="#"><span class="tr">App Store'dan indir</span><span class="en">Download on the App Store</span></a>
+      <a class="btn btn-ghost guide-link" href="https://mehmetak1978.github.io/paperreader-legal/kilavuz-tr.html"><span class="tr">Kullanım kılavuzunu oku</span><span class="en">Read the user guide</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>PaperReader</span>
+    <a class="guide-link" href="https://mehmetak1978.github.io/paperreader-legal/kilavuz-tr.html"><span class="tr">Kullanım kılavuzu</span><span class="en">User guide</span></a>
+    <a class="support-link" href="https://mehmetak1978.github.io/paperreader-legal/support.html#tr"><span class="tr">Destek</span><span class="en">Support</span></a>
+    <a class="privacy-link" href="https://mehmetak1978.github.io/paperreader-legal/privacy-PaperReader-tr.html"><span class="tr">Gizlilik politikası</span><span class="en">Privacy policy</span></a>
+    <a href="mailto:mehmetak78@gmail.com">mehmetak78@gmail.com</a>
+    <span class="copy">© 2026 Mehmet Ak · <span class="tr">iPadOS 26 ve üzeri</span><span class="en">iPadOS 26 or later</span></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ——— App Store bağlantısı (ülke kodsuz: ziyaretçiyi kendi mağazasına yönlendirir) ———
+  var APP_STORE_URL = "https://apps.apple.com/app/id6787424097";
+  document.querySelectorAll('.store-link').forEach(function(a){ a.href = APP_STORE_URL; });
+
+  var GUIDE = { tr:"https://mehmetak1978.github.io/paperreader-legal/kilavuz-tr.html",
+                en:"https://mehmetak1978.github.io/paperreader-legal/kilavuz-en.html" };
+  var SUPPORT = { tr:"https://mehmetak1978.github.io/paperreader-legal/support.html#tr",
+                  en:"https://mehmetak1978.github.io/paperreader-legal/support.html#en" };
+  var PRIVACY = { tr:"https://mehmetak1978.github.io/paperreader-legal/privacy-PaperReader-tr.html",
+                  en:"https://mehmetak1978.github.io/paperreader-legal/privacy-PaperReader-en.html" };
+  var root = document.documentElement;
+
+  function setLang(l){
+    root.setAttribute('data-lang', l);
+    root.setAttribute('lang', l);
+    document.querySelectorAll('[data-set-lang]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.setLang===l)); });
+    document.querySelectorAll('.guide-link').forEach(function(a){ a.href = GUIDE[l]; });
+    document.querySelectorAll('.privacy-link').forEach(function(a){ a.href = PRIVACY[l]; });
+    document.querySelectorAll('.support-link').forEach(function(a){ a.href = SUPPORT[l]; });
+    document.querySelectorAll('img[data-src-'+l+']').forEach(function(img){ var s=img.getAttribute('data-src-'+l); if(s && img.getAttribute('src')!==s) img.setAttribute('src', s); });
+    try{ localStorage.setItem('pr-lang', l); }catch(e){}
+  }
+  var q=null; try{ q = new URLSearchParams(location.search).get('lang'); }catch(e){}
+  var saved=null; try{ saved = localStorage.getItem('pr-lang'); }catch(e){}
+  var nav = (navigator.language||'tr').toLowerCase();
+  setLang((q==='tr'||q==='en') ? q : (saved || (nav.indexOf('tr')===0 ? 'tr' : 'en')));
+  document.querySelectorAll('[data-set-lang]').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.dataset.setLang); }); });
+
+  // ——— kahraman canlandırması ———
+  var mock = document.getElementById('mock');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function play(){
+    if(reduce){ mock.classList.add('done'); return; }
+    mock.classList.remove('play','done'); void mock.offsetWidth; mock.classList.add('play');
+  }
+  setTimeout(play, 350);
+  document.getElementById('replay').addEventListener('click', play);
+
+
+  // ——— öğrenme kartı ———
+  var deck = { tr:[
+      {q:"Ajan nedir?", a:"Bir hedefe ulaşmak için <b>kendi adımlarını planlayan</b> ve araçlarını kendi seçen sistem."},
+      {q:"Klasik programdan farkı ne?", a:"Klasik programda her adım önceden yazılır; ajanda kararı <b>model o anki duruma göre</b> verir."},
+      {q:"Esnekliğin bedeli nedir?", a:"Denetim zorlaşır. Bu yüzden <b>izlenebilirlik</b> ve küçük, doğrulanabilir adımlar gerekir."}],
+    en:[
+      {q:"What is an agent?", a:"A system that <b>plans its own steps</b> and chooses its own tools to reach a goal."},
+      {q:"How does it differ from a classic program?", a:"In a classic program every step is written in advance; in an agent the <b>model decides in context</b>."},
+      {q:"What is the price of flexibility?", a:"Oversight gets harder — hence <b>traceability</b> and small, verifiable steps."}] };
+  var fi=0, flash=document.getElementById('flash');
+  function renderCard(){
+    var l = root.getAttribute('data-lang')==='en'?'en':'tr', c=deck[l][fi];
+    document.getElementById('flashQ').textContent=c.q;
+    document.getElementById('flashA').innerHTML=c.a;
+    document.getElementById('flashNum').textContent=(fi+1)+' / '+deck[l].length;
+    document.querySelectorAll('#deckDots i').forEach(function(d,i){ d.classList.toggle('on', i===fi); });
+  }
+  if(flash){
+    renderCard();
+    flash.addEventListener('click', function(e){ if(e.target.closest('.faces')) return; flash.classList.toggle('flipped'); });
+    flash.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); flash.classList.toggle('flipped'); } });
+    flash.querySelectorAll('.faces button').forEach(function(b){ b.addEventListener('click', function(e){
+      e.stopPropagation(); flash.classList.remove('flipped');
+      setTimeout(function(){ fi=(fi+1)%3; renderCard(); }, 380);
+    }); });
+    document.querySelectorAll('[data-set-lang]').forEach(function(b){ b.addEventListener('click', renderCard); });
+  }
+
+  // ——— rapor: sayaçlar + ısı haritası ———
+  var heat=document.getElementById('heat');
+  if(heat){
+    var seed=7; function rnd(){ seed=(seed*9301+49297)%233280; return seed/233280; }
+    for(var i=0;i<156;i++){ var v=rnd(); var lvl = v<.42?0:(v<.68?1:(v<.86?2:3)); var el=document.createElement('i');
+      el.style.opacity = lvl===0? .12 : (0.3+lvl*0.23); el.style.animationDelay=(0.2+i*0.008)+'s'; heat.appendChild(el); }
+  }
+  var rep=document.querySelector('.rep');
+  if(rep && 'IntersectionObserver' in window){
+    var ro=new IntersectionObserver(function(en){ if(!en[0].isIntersecting) return; ro.disconnect();
+      rep.querySelectorAll('[data-count]').forEach(function(el){ var t=+el.dataset.count, s0=performance.now();
+        (function tick(now){ var p=Math.min(1,(now-s0)/1100); p=1-Math.pow(1-p,3); el.textContent=Math.round(t*p); if(p<1) requestAnimationFrame(tick); })(s0); });
+    },{threshold:.3}); ro.observe(rep);
+  } else if(rep){ rep.querySelectorAll('[data-count]').forEach(function(el){ el.textContent=el.dataset.count; }); }
+
+  // ——— kaydırma ile belirme ———
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:.08});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+})();
+</script>
+</body>
+</html>
